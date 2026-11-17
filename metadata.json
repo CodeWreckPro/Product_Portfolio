@@ -1,0 +1,6 @@
+{
+  "name": "Product Management Portfolio",
+  "description": "Associate Product Manager portfolio showcasing product improvement case studies and product teardowns across Google Calendar, Google Maps, Google Gemini, and Strava.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

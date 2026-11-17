@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Independent Google Calendar product case study: collaborative scheduling across time zones and contextual meeting history.">
+<title>Google Calendar: Rethinking How Teams Schedule, Collaborate and Stay in Sync</title>
+<style>
+:root{--ink:#17212f;--muted:#5d6878;--line:#dce2e9;--surface:#f5f7fa;--blue:#2457c5;--pale:#eef4ff;--max:1080px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);font:16px/1.72 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+a{color:var(--blue);text-underline-offset:3px}.page{width:min(var(--max),calc(100% - 44px));margin:auto}
+.hero{padding:72px 0 44px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#f7f9fc,#fff)}
+.eyebrow,.num{color:var(--blue);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+h1{max-width:900px;margin:12px 0;font-size:clamp(36px,5vw,58px);line-height:1.08;letter-spacing:-.04em}
+.subtitle{color:var(--muted);font-size:clamp(19px,2vw,23px);margin:18px 0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 22px;color:var(--muted);font-size:13px}
+.notice,.callout{margin:24px 0;padding:16px 20px;border-left:3px solid var(--blue);background:var(--pale);color:#33445f}
+.layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px;align-items:start;padding:40px 0 80px}
+aside{position:sticky;top:20px;max-height:calc(100vh - 40px);overflow:auto;border-right:1px solid var(--line);padding:14px 14px 14px 0}
+aside h2{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}aside ol{padding-left:18px}aside li{margin:6px 0}aside a{font-size:13px;color:#465365;text-decoration:none}
+main{min-width:0}section{margin:0 0 60px;scroll-margin-top:24px}.num{margin:0 0 8px}
+h2{font-size:clamp(27px,3vw,36px);line-height:1.18;letter-spacing:-.025em;margin:0 0 20px}
+h3{font-size:21px;line-height:1.3;margin:30px 0 12px}h4{font-size:16px;margin:22px 0 9px}
+p{margin:0 0 15px}.lead{font-size:18px;color:#354255}.muted,.small{color:var(--muted)}.small{font-size:13px}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}
+.card{padding:17px;border:1px solid var(--line);border-radius:10px}.card h3{font-size:17px;margin:0 0 7px}.card p{font-size:14px;color:var(--muted);margin:0}
+.table-wrap{overflow-x:auto;margin:16px 0 24px}table{width:100%;border-collapse:collapse;border:1px solid var(--line);font-size:14px;line-height:1.55}
+caption{text-align:left;color:var(--muted);font-size:13px;padding:0 0 9px}
+th,td{text-align:left;vertical-align:top;padding:11px 12px;border:1px solid var(--line)}th{background:var(--surface);font-size:12px;letter-spacing:.03em}
+ul,ol{padding-left:23px}li{margin:0 0 7px}
+.tag{display:inline-block;padding:2px 7px;border-radius:4px;background:#edf1f6;color:#465365;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.tag.fact{background:#eaf5ef;color:#176b48}.tag.hyp{background:#fff4df;color:#8a5a12}.tag.proposal{background:#edf2ff;color:#173f98}
+.flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:18px 0 24px;counter-reset:flow}
+.flow div{border:1px solid var(--line);border-radius:9px;padding:13px;counter-increment:flow}
+.flow div:before{content:counter(flow,decimal-leading-zero);display:block;color:var(--blue);font-size:11px;font-weight:800;margin-bottom:7px}
+.flow strong{display:block;font-size:14px}.flow span{font-size:12px;color:var(--muted)}
+.formula{display:flex;justify-content:center;align-items:center;gap:14px;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:10px;font-size:21px;font-weight:700;margin:20px 0}
+.frac{display:inline-grid;text-align:center;line-height:1.35}.frac span:first-child{border-bottom:2px solid;padding:0 8px 4px}.frac span:nth-child(2){padding-top:4px}.frac small{font-size:11px;color:var(--muted);font-weight:400}
+.priority{font-weight:800;white-space:nowrap}.p0{color:#176b48}.p1{color:#2457c5}.p2{color:var(--muted)}
+footer{border-top:1px solid var(--line);padding:26px 0 44px;color:var(--muted);font-size:13px}
+@media(max-width:800px){.layout{grid-template-columns:1fr;gap:22px}aside{position:static;max-height:none;border-right:0;border-bottom:1px solid var(--line)}aside ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}}
+@media(max-width:560px){.page{width:calc(100% - 30px)}.flow{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}table{min-width:620px}}
+@media print{aside{display:none}.layout{display:block}section{break-inside:avoid-page}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="page">
+<p class="eyebrow">Google APM Portfolio · Case Study 01 · Independent Product Analysis</p>
+<h1>Google Calendar: Rethinking How Teams Schedule, Collaborate and Stay in Sync</h1>
+<p class="subtitle">From managing meetings to enabling better collaboration.</p>
+<div class="meta"><span><strong>Focus:</strong> Distributed-team collaboration</span><span><strong>Scope:</strong> Scheduling and meeting continuity</span><span><strong>Format:</strong> Product strategy case study</span><span><strong>Prepared:</strong> November 2026</span></div>
+<div class="notice"><strong>Portfolio context:</strong> This is an independent product analysis and proposal. It is not affiliated with Google and does not represent Google's internal strategy, user research, analytics or roadmap. Existing product capabilities, published research, observations and proposed concepts are distinguished throughout.</div>
+</div></header>
+
+<div class="page layout">
+<aside aria-label="Table of contents"><h2>On this page</h2><ol>
+<li><a href="#overview">01. Product Overview</a></li><li><a href="#research">02. User Research</a></li><li><a href="#problems">03. Problem Identification</a></li><li><a href="#journey">04. User Journey</a></li><li><a href="#solutions">05. Proposed Solutions</a></li><li><a href="#prioritisation">06. Prioritisation and MVP</a></li><li><a href="#metrics">07. Measuring Success</a></li><li><a href="#experiments">08. Experimentation and Validation</a></li><li><a href="#risks">09. Risks, Trade-offs and Reflection</a></li><li><a href="#references">Sources and References</a></li>
+</ol></aside>
+<main>
+<section id="executive-summary">
+<p class="num">Case study brief</p><h2>The opportunity</h2>
+<p class="lead">Google Calendar is already effective at helping people manage events and find available time. But for distributed teams, scheduling is not simply a matter of finding an empty slot. A time can be technically available while still being inconvenient for one or more participants. After a meeting, the information created during the discussion can also become difficult to rediscover.</p>
+<p>This case study explores how Calendar could become a stronger collaboration layer around two moments in the meeting lifecycle: coordinating a meeting before it happens and retaining useful context after it ends.</p>
+<div class="two">
+<article class="card"><h3>Opportunity 1: Collaborative scheduling</h3><p>Help organisers and participants converge on a mutually acceptable time across time zones, working hours and competing preferences.</p></article>
+<article class="card"><h3>Opportunity 2: Contextual meeting history</h3><p>Make decisions, action items and meeting notes easier to find from the Calendar event where the meeting happened.</p></article>
+</div>
+<div class="callout"><strong>Core product thesis</strong><p>Google Calendar could evolve from a tool that primarily manages people's schedules into a more complete collaboration platform that helps teams coordinate meetings before they happen and retain context after they end.</p></div>
+<p class="small">The two opportunities are related, but they are not equally urgent. Collaborative scheduling is the primary MVP opportunity. Meeting continuity is a follow-on capability that builds on Calendar's existing connection with Google Meet and Google Drive.</p>
+</section>
+
+<section id="overview">
+<p class="num">01 · Product understanding</p><h2>Product Overview</h2>
+<h3>What is Google Calendar?</h3>
+<p><a href="https://calendar.google.com/" target="_blank" rel="noopener noreferrer">Google Calendar</a> is a digital calendar and scheduling product that helps individuals and teams organise events, coordinate availability, invite participants and manage their time. It is available to personal users and as part of Google Workspace, where it connects with products such as Gmail, Google Meet and Google Drive.</p>
+<p>Its core value is not just storing appointments. It provides a shared representation of time: users can see commitments, understand availability, invite others and coordinate around events. For teams, this makes Calendar part of the collaboration infrastructure.</p>
+<h3>Primary user groups</h3>
+<div class="table-wrap"><table><caption>High-level user groups relevant to this case study</caption><thead><tr><th>User group</th><th>Primary need</th><th>Potential friction</th></tr></thead><tbody>
+<tr><td>Individual users</td><td>Manage personal commitments and understand availability.</td><td>Conflicts, fragmented calendars and changing schedules.</td></tr>
+<tr><td>Meeting organisers</td><td>Find a suitable time, invite participants and confirm a meeting efficiently.</td><td>Repeated coordination, late responses and rescheduling.</td></tr>
+<tr><td>Meeting participants</td><td>Understand the proposed time, assess whether they can attend and communicate constraints.</td><td>Time-zone ambiguity, inconvenient meeting times and limited influence over the final slot.</td></tr>
+<tr><td>Distributed teams</td><td>Coordinate work across locations, time zones and working-hour preferences.</td><td>Uneven distribution of early or late meetings and asynchronous coordination overhead.</td></tr>
+<tr><td>People revisiting past meetings</td><td>Recover decisions, discussion context and action items.</td><td>Unclear event titles, scattered notes and time-consuming searches.</td></tr>
+</tbody></table></div>
+<h3>Existing capabilities and product context</h3>
+<p>The proposal should build on what Calendar and the wider Workspace ecosystem already do. It should not present existing capabilities as new features.</p>
+<div class="table-wrap"><table><caption>Existing capabilities relevant to the opportunity</caption><thead><tr><th>Capability</th><th>What exists</th><th>Implication for this proposal</th></tr></thead><tbody>
+<tr><td>Gemini-assisted scheduling</td><td>For eligible plans, Gemini in Calendar can suggest meeting times by considering participants' availability, time zones, working hours and existing conflicts, subject to calendar access and product limitations.<sup><a href="#source-1">[1]</a></sup><sup><a href="#source-2">[2]</a></sup></td><td>Extend the decision workflow beyond suggested slots, rather than simply adding another AI time suggestion feature.</td></tr>
+<tr><td>Time-zone support</td><td>Calendar supports events and scheduling across time zones. The interface needs to make the relevant local-time context clear to organisers and invitees.</td><td>Present candidate times in each participant's local time and make organiser and participant time zones easy to compare.</td></tr>
+<tr><td>Proposed meeting times</td><td>Calendar supports mechanisms for invitees to propose a different time for an event.<sup><a href="#source-3">[3]</a></sup></td><td>The opportunity is a more structured, multi-option decision process with participant preferences, private alternatives and a clear deadline.</td></tr>
+<tr><td>Gemini meeting notes in Meet</td><td>Eligible users can enable Gemini to take meeting notes in Google Meet from a Calendar event. Notes are created in Google Docs and associated with the event workflow.<sup><a href="#source-4">[4]</a></sup></td><td>Improve how meeting context is surfaced and rediscovered, not merely attach another notes document.</td></tr>
+<tr><td>Google Workspace integration</td><td>Calendar works alongside Gmail, Meet and Drive, supporting event invitations, video meetings and shared documents.</td><td>Use the event as a contextual entry point while preserving the source document and its permissions.</td></tr>
+</tbody></table></div>
+<h3>Strategic opportunity</h3>
+<p>Calendar sits at the point where people coordinate their time. That gives it a natural role in helping teams move from scheduling a meeting to preparing for it, and then preserving what came out of it. The opportunity is to reduce coordination friction without turning Calendar into a full project-management or document-authoring product.</p>
+</section>
+
+<section id="research">
+<p class="num">02 · Understand users and evidence</p><h2>User Research</h2>
+<h3>Research approach</h3>
+<p>This is a desk-research-led product analysis. It combines current product documentation, published research and workflow observations. No primary user interviews or surveys have been conducted for this draft. The user problems below are therefore opportunities to validate, not claims that every Calendar user experiences the same friction.</p>
+<h3>Relevant user segments</h3>
+<div class="table-wrap"><table><caption>Initial segmentation and needs hypotheses</caption><thead><tr><th>Segment</th><th>Context</th><th>Need to investigate</th></tr></thead><tbody>
+<tr><td>Distributed individual contributors</td><td>Work with teammates, clients or partners in other time zones.</td><td>Do they feel they have meaningful input into meeting times? How often do they attend outside their preferred hours?</td></tr>
+<tr><td>Frequent meeting organisers</td><td>Coordinate recurring or cross-functional meetings with several participants.</td><td>How much time is spent proposing slots, chasing replies and resolving conflicts?</td></tr>
+<tr><td>Team leads and managers</td><td>Balance team availability, deadlines and collaboration needs.</td><td>How do they decide whose schedule takes priority when no slot is convenient for everyone?</td></tr>
+<tr><td>People who miss or revisit meetings</td><td>Need to recover a decision or action item after the meeting.</td><td>How do they currently find the relevant event, notes document or decision?</td></tr>
+</tbody></table></div>
+<h3>Published research: time-zone collaboration</h3>
+<p>A 2023 CHI study, <em>Challenging but Connective: Large-Scale Characteristics of Synchronous Collaboration Across Time Zones</em>, analysed 20 million meetings scheduled at a multinational corporation and was supported by a survey of 130 employees. The researchers found that cross-time-zone meetings were associated with early-morning and late-evening scheduling patterns that often conflicted with employees' stated temporal preferences. They also found that the burden was distributed unevenly across organisational levels and geographies.<sup><a href="#source-5">[5]</a></sup></p>
+<p>The study also cautions against a simplistic conclusion that cross-time-zone meetings should simply be reduced. Such meetings can connect people who are organisationally distant and diverse. The product opportunity is therefore not to eliminate inconvenient meetings, but to help teams make better-informed and fairer trade-offs when synchronous collaboration is necessary.</p>
+<div class="callout"><strong>Research implication</strong><p>Availability is not the same as convenience. A scheduling product should help teams understand who is absorbing the inconvenience, not only identify an empty slot on a calendar.</p></div>
+<h3>Research observations and hypotheses</h3>
+<div class="table-wrap"><table><caption>Evidence classification. Hypotheses require validation before being treated as established user needs.</caption><thead><tr><th>Type</th><th>Insight</th><th>Product implication</th></tr></thead><tbody>
+<tr><td><span class="tag fact">Published finding</span></td><td>Cross-time-zone meetings can create early or late meeting burdens, and those burdens may be unevenly distributed.</td><td>Measure the distribution of inconvenient meeting times, not only the total number of meetings.</td></tr>
+<tr><td><span class="tag fact">Product fact</span></td><td>Calendar already uses availability, working hours, time zones and conflicts to generate eligible Gemini scheduling suggestions.</td><td>Focus the proposal on collective preference gathering and decision-making.</td></tr>
+<tr><td><span class="tag hyp">Hypothesis</span></td><td>Organisers of meetings with several participants may need multiple rounds of messages to find a mutually acceptable time.</td><td>Test whether a structured poll reduces coordination time and follow-up messages.</td></tr>
+<tr><td><span class="tag hyp">Hypothesis</span></td><td>Participants may accept inconvenient times because they do not want to delay the group or challenge a senior colleague.</td><td>Test private alternatives and preference collection before exposing group-level results.</td></tr>
+<tr><td><span class="tag hyp">Hypothesis</span></td><td>People may remember a meeting topic or approximate date but not the exact event title or notes document.</td><td>Test whether contextual summaries and meeting-history search reduce information retrieval time.</td></tr>
+</tbody></table></div>
+<h3>Research limitations and next discovery steps</h3>
+<ul>
+<li>The CHI study provides evidence about cross-time-zone collaboration, but it is based on one multinational organisation and should not be assumed to represent every Google Calendar user.</li>
+<li>Product documentation confirms what features exist, but it does not establish how often users experience the proposed pain points.</li>
+<li>Public reviews and community discussions can reveal language and possible friction, but they are not representative samples.</li>
+<li>Primary research is needed to understand the frequency, severity and context of scheduling and meeting-retrieval problems.</li>
+</ul>
+</section>
+
+<section id="problems">
+<p class="num">03 · Frame the opportunity</p><h2>Problem Identification</h2>
+<h3>Problem A: Finding an available time is not the same as finding an acceptable time</h3>
+<p>For a distributed team, the calendar grid can reveal when people are free, but it does not necessarily reveal which of several available times is least disruptive to the group. One participant may have an early start, another may be at the end of their working day, and a third may have limited flexibility because of personal or operational commitments.</p>
+<p>When there is no clear way to collect preferences, organisers may rely on repeated messages, informal negotiation or their own judgement. Participants may accept a slot even when it is inconvenient. Over time, the same people can end up absorbing a disproportionate share of early or late meetings.</p>
+<div class="callout"><strong>Problem statement A</strong><p>Meeting organisers coordinating across time zones need a lightweight way to compare candidate times against participants' real preferences, because availability alone does not show whether a meeting time is mutually acceptable or distributes inconvenience fairly.</p></div>
+<h4>Underlying causes to investigate</h4>
+<ul>
+<li>Availability data represents calendar commitments, not the full range of personal preferences or constraints.</li>
+<li>Time-zone differences make it harder to compare the impact of a proposed time across participants.</li>
+<li>Participants may be reluctant to suggest alternatives, especially when the organiser is senior or the meeting is important.</li>
+<li>Existing scheduling suggestions can identify candidate slots, but the group may still need to express preferences and make a collective decision.</li>
+<li>Repeated meetings can create an uneven distribution of inconvenient time slots if the burden is not visible.</li>
+</ul>
+<h3>Problem B: Meeting context becomes difficult to rediscover</h3>
+<p>A meeting can produce decisions, action items, follow-ups and useful context. But when someone misses the meeting or needs to revisit a decision weeks later, they may have to search through Calendar events, Drive documents, notes and chat messages. The event title may not contain the specific topic they remember, and the notes may be stored separately from the event.</p>
+<p>Gemini-generated meeting notes can already be associated with Calendar events for eligible users. The opportunity is to make that context easier to scan and retrieve from the Calendar experience, while keeping the original notes as the source of truth.</p>
+<div class="callout"><strong>Problem statement B</strong><p>People who need to revisit a past meeting need a fast way to identify its key decisions and locate the original notes, because meeting context can become fragmented across events and documents.</p></div>
+<h3>Opportunity statement</h3>
+<p>How might Google Calendar help distributed teams reach a mutually acceptable meeting time with less coordination effort, while making the outcomes of those meetings easier to find later?</p>
+<p>The first problem is prioritised because it occurs before every meeting and directly affects whether collaboration can happen. The second problem is valuable, but it depends on the quality, availability and permissions of meeting notes and can be developed as a follow-on experience.</p>
+</section>
+
+<section id="journey">
+<p class="num">04 · Understand the workflow</p><h2>User Journey</h2>
+<h3>Journey A: Scheduling a cross-time-zone meeting today</h3>
+<p>The following is a representative journey to investigate, not a claim that every user follows this exact process.</p>
+<div class="table-wrap"><table><caption>Illustrative current-state journey for a meeting organiser and invitees</caption><thead><tr><th>Stage</th><th>User action</th><th>Current experience</th><th>Potential friction</th></tr></thead><tbody>
+<tr><td>1. Initiate</td><td>Organiser creates an event and adds participants.</td><td>Calendar provides event creation and attendee management.</td><td>The organiser may not yet understand every participant's preferred meeting window.</td></tr>
+<tr><td>2. Find options</td><td>Organiser reviews availability and suggested times.</td><td>Gemini can suggest times using available calendar information for eligible users.</td><td>A free slot may still be inconvenient for someone.</td></tr>
+<tr><td>3. Coordinate</td><td>Organiser proposes a time or asks participants for alternatives.</td><td>Participants can respond to an invitation and may propose another time.</td><td>Several rounds of messages may be needed to converge on a time.</td></tr>
+<tr><td>4. Evaluate</td><td>Participants interpret the proposed time.</td><td>Calendar displays event times in local time-zone contexts.</td><td>Participants may not easily compare how convenient each candidate is for the full group.</td></tr>
+<tr><td>5. Confirm</td><td>Organiser chooses a time and sends the invitation.</td><td>Calendar updates the event and notifies invitees.</td><td>The decision may be based on incomplete preference information.</td></tr>
+</tbody></table></div>
+<h3>Journey A: Proposed experience</h3>
+<div class="flow" aria-label="Proposed collaborative scheduling flow">
+<div><strong>Create meeting</strong><span>Organiser adds attendees, duration and meeting context.</span></div><div><strong>Generate options</strong><span>Gemini proposes candidate slots using available scheduling information.</span></div><div><strong>Open a poll</strong><span>Organiser selects several candidate slots and sets a deadline.</span></div><div><strong>Collect preferences</strong><span>Participants see local times, vote and optionally suggest alternatives privately.</span></div><div><strong>Review trade-offs</strong><span>Organiser compares aggregate preferences and alternative suggestions.</span></div><div><strong>Confirm meeting</strong><span>Organiser confirms a slot and Calendar updates the event.</span></div>
+</div>
+<h3>Journey B: Finding information from a past meeting</h3>
+<div class="table-wrap"><table><caption>Illustrative current and proposed meeting-continuity journey</caption><thead><tr><th>Stage</th><th>Current-state behaviour</th><th>Potential friction</th><th>Proposed improvement</th></tr></thead><tbody>
+<tr><td>1. Recall</td><td>User remembers a topic, decision or approximate date.</td><td>Exact event title may be unknown.</td><td>Allow users to start from the relevant Calendar history.</td></tr>
+<tr><td>2. Search</td><td>User searches Calendar, Drive or other notes locations.</td><td>Information may be spread across multiple places.</td><td>Show a concise summary and linked notes within the event.</td></tr>
+<tr><td>3. Verify</td><td>User opens a notes document and scans the content.</td><td>Finding the relevant decision can take time.</td><td>Surface decisions, action items and follow-ups as structured highlights.</td></tr>
+<tr><td>4. Act</td><td>User copies or shares the information elsewhere.</td><td>Context can be lost or duplicated.</td><td>Link directly to the original notes and preserve its access permissions.</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="solutions">
+<p class="num">05 · Design the intervention</p><h2>Proposed Solutions</h2>
+<h3>Solution A: Collaborative Time Slot Selection</h3>
+<p><span class="tag proposal">Proposed concept</span> Add a structured multi-option scheduling poll to the Calendar event-creation workflow. The goal is to help participants express preferences and help organisers make a decision without managing a long chain of messages.</p>
+<h4>How the experience works</h4>
+<ol>
+<li><strong>Create the event:</strong> The organiser enters the meeting title, duration, attendees and relevant context.</li>
+<li><strong>Suggest candidate slots:</strong> Gemini uses information the organiser is authorised to access, such as availability, time zones, working hours and existing conflicts, to generate a shortlist. This builds on existing Gemini scheduling suggestions.</li>
+<li><strong>Select multiple options:</strong> The organiser reviews the shortlist, adjusts it if needed and selects several candidate times for a poll.</li>
+<li><strong>Set the response deadline:</strong> The organiser chooses when voting closes. Participants can see the deadline and whether the poll is still open.</li>
+<li><strong>Display local times:</strong> Each participant sees candidate slots in their own local time zone. The organiser can also inspect the corresponding time in participants' zones.</li>
+<li><strong>Collect preferences:</strong> Participants select the slots that work for them. The interface distinguishes a preferred time from a time they can attend if necessary.</li>
+<li><strong>Offer a private alternative:</strong> A participant can suggest another time. This suggestion is visible only to the organiser by default, reducing the social pressure of publicly challenging a proposed slot.</li>
+<li><strong>Review results:</strong> The organiser sees aggregate availability and preferences, including conflicts and alternative suggestions, and can assess the trade-offs.</li>
+<li><strong>Confirm:</strong> The organiser selects the final time. Calendar updates the event and notifies invitees.</li>
+</ol>
+<h4>Key design decisions</h4>
+<div class="table-wrap"><table><caption>Important interaction choices and rationale</caption><thead><tr><th>Decision</th><th>Rationale</th><th>Risk to validate</th></tr></thead><tbody>
+<tr><td>Show times in each participant's local time</td><td>Reduces mental conversion and makes the impact of a slot easier to understand.</td><td>Time-zone data may be missing or outdated. Users need a clear way to correct it.</td></tr>
+<tr><td>Separate preferred from acceptable times</td><td>A participant may be able to attend a slot without considering it convenient.</td><td>Additional voting complexity could reduce completion.</td></tr>
+<tr><td>Keep alternative suggestions private to the organiser</td><td>Gives participants a lower-pressure way to communicate constraints.</td><td>Organisers may not understand why a time was suggested or may overlook an alternative.</td></tr>
+<tr><td>Keep final confirmation with the organiser</td><td>Preserves accountability and avoids automatically booking a time based on a simplistic vote count.</td><td>Organisers could override participant preferences without explanation.</td></tr>
+<tr><td>Use an explicit response deadline</td><td>Creates a clear point at which the organiser can make a decision.</td><td>Short deadlines may disadvantage people in different time zones or on leave.</td></tr>
+<tr><td>Test aggregate-result visibility</td><td>Aggregate results can help the group understand the options.</td><td>Early visibility may create majority bias or influence later votes.</td></tr>
+</tbody></table></div>
+<h4>Longer-term extension: Fairer recurring meetings</h4>
+<p>For recurring meetings across time zones, Calendar could optionally show how early and late meeting times have been distributed over time. It could suggest a rotation when the same participants repeatedly absorb inconvenient hours. The organiser would remain in control, and the feature would need to account for local working hours, holidays and individual preferences.</p>
+<p>This should not be part of the first release. A fairness score could oversimplify personal circumstances, and the product should not imply that all inconvenient meeting times are equally burdensome.</p>
+
+<h3>Solution B: Contextual Meeting History</h3>
+<p><span class="tag proposal">Proposed concept</span> Make the Calendar event a useful entry point for revisiting what happened in a meeting. The proposal builds on existing Gemini meeting notes in Meet and improves how the resulting context is surfaced.</p>
+<h4>How the experience works</h4>
+<ol>
+<li>Gemini-generated meeting notes are associated with the relevant Calendar event, where the feature is enabled and available.</li>
+<li>The event displays a concise summary card with key discussion points, decisions, action items and follow-ups.</li>
+<li>Each summary section is clearly labelled as AI-generated and includes a link to the original Google Doc.</li>
+<li>Users can navigate a chronological history of past meetings and open the relevant event.</li>
+<li>As a later extension, users can search meeting history using natural language, for example: <em>“Find the meeting where we discussed the API migration.”</em></li>
+</ol>
+<h4>Design principles</h4>
+<ul>
+<li><strong>Preserve source access:</strong> The original notes document remains accessible. The summary is a shortcut, not a replacement for the source.</li>
+<li><strong>Respect permissions:</strong> The summary must inherit or enforce the access rules of the underlying meeting and document. A Calendar attendee should not automatically gain access to restricted notes.</li>
+<li><strong>Make uncertainty visible:</strong> AI-generated summaries should not present inferred statements as confirmed decisions.</li>
+<li><strong>Support correction:</strong> Users should be able to open the source and correct or report an inaccurate summary.</li>
+<li><strong>Keep the interface lightweight:</strong> Calendar should surface the context people need, not become a full document editor.</li>
+</ul>
+<h3>How the proposals fit together</h3>
+<p>Collaborative scheduling improves the process before a meeting. Contextual meeting history improves the process after it. Together, they strengthen Calendar's role as a collaboration hub while keeping its central job clear: helping people coordinate time and commitments.</p>
+</section>
+
+<section id="prioritisation">
+<p class="num">06 · Decide what to build first</p><h2>Prioritisation and MVP</h2>
+<h3>Prioritisation principle</h3>
+<p>The first release should solve one coherent problem end to end. Building scheduling polls, AI meeting summaries, historical search and recurring-meeting fairness at the same time would create a broad scope with multiple dependencies. The MVP should focus on helping a group select and confirm a mutually acceptable time.</p>
+<h3>RICE framework</h3>
+<p>RICE is a prioritisation framework that compares candidate initiatives using estimated reach, impact, confidence and effort. It is useful for structuring a discussion, but reliable internal usage and engineering estimates are not available for this independent analysis. I therefore use qualitative prioritisation rather than inventing numerical scores.</p>
+<div class="formula" role="img" aria-label="RICE equals reach multiplied by impact multiplied by confidence, divided by effort"><span>RICE =</span><span class="frac"><span>Reach × Impact × Confidence</span><span>Effort</span><small>Qualitative assessment only in this case study</small></span></div>
+<p class="small">Reach estimates how many users or workflows are affected. Impact estimates the size of the improvement. Confidence reflects the strength of the evidence. Effort represents the product, design, engineering and operational work required.</p>
+<h3>Proposed release sequence</h3>
+<div class="table-wrap"><table><caption>Feature prioritisation and rationale</caption><thead><tr><th>Priority</th><th>Capability</th><th>Why this priority</th><th>Dependency or validation need</th></tr></thead><tbody>
+<tr><td class="priority p0">P0 · MVP</td><td>Gemini-assisted candidate time suggestions</td><td>Reuses existing scheduling intelligence and provides a starting set of options.</td><td>Eligibility, calendar permissions, accuracy and clear explanations of conflicts.</td></tr>
+<tr><td class="priority p0">P0 · MVP</td><td>Multi-option scheduling poll</td><td>Creates a structured way for participants to express preferences across candidate slots.</td><td>Simple event creation flow and reliable invitation delivery.</td></tr>
+<tr><td class="priority p0">P0 · MVP</td><td>Local-time display and time-zone comparison</td><td>Makes the impact of each option understandable to every participant.</td><td>Accurate participant time-zone information and clear daylight-saving handling.</td></tr>
+<tr><td class="priority p0">P0 · MVP</td><td>Participant preferences and private alternative suggestions</td><td>Captures more than calendar availability and gives participants a lower-pressure way to communicate constraints.</td><td>Privacy controls, accessible voting and clear distinction between preferred and possible times.</td></tr>
+<tr><td class="priority p0">P0 · MVP</td><td>Deadline, aggregate results and organiser confirmation</td><td>Creates a complete decision workflow and preserves organiser accountability.</td><td>Test aggregate-result visibility to avoid majority bias.</td></tr>
+<tr><td class="priority p1">P1 · Follow-on</td><td>Inline meeting summary in Calendar event</td><td>Reduces the effort needed to understand what happened in a meeting.</td><td>Reliable notes generation, clear source attribution and document permissions.</td></tr>
+<tr><td class="priority p1">P1 · Follow-on</td><td>Decision, action-item and follow-up highlights</td><td>Makes the most useful parts of meeting notes easier to scan.</td><td>Accuracy evaluation and user correction mechanisms.</td></tr>
+<tr><td class="priority p1">P1 · Follow-on</td><td>Chronological meeting history</td><td>Creates a predictable place to revisit previous meetings.</td><td>Clear event-to-document association and permission enforcement.</td></tr>
+<tr><td class="priority p2">P2 · Later</td><td>Natural-language historical meeting search</td><td>Could help users find information when they remember a topic rather than an event title.</td><td>Search relevance, source citations, access control and retrieval-quality evaluation.</td></tr>
+<tr><td class="priority p2">P2 · Later</td><td>Recurring-meeting fairness insights and rotation suggestions</td><td>Could help teams notice and reduce repeated inconvenience.</td><td>Longitudinal data, user consent, fairness definitions and safeguards against oversimplification.</td></tr>
+</tbody></table></div>
+<h3>MVP scope</h3>
+<p><strong>The MVP is a collaborative scheduling flow that begins with a Calendar event and ends with a confirmed meeting.</strong></p>
+<ul>
+<li>Organiser creates an event and adds participants.</li><li>Calendar suggests candidate slots using authorised availability and time-zone information.</li><li>Organiser selects multiple candidate slots and sets a deadline.</li><li>Participants view options in local time, indicate preferred and possible slots, and can privately suggest an alternative.</li><li>Organiser reviews aggregate results and confirms the final slot.</li><li>Calendar updates the event and sends the normal event notifications.</li>
+</ul>
+<h3>What should not be built in the MVP</h3>
+<ul>
+<li>Automatic booking based only on the highest vote count. The organiser should retain final confirmation.</li>
+<li>Public display of individual votes. This could create social pressure and expose personal constraints.</li>
+<li>Complex fairness scoring or automated recurring-meeting rotation before the product understands user preferences.</li>
+<li>A broad meeting-management workspace that duplicates project-management or document-authoring tools.</li>
+<li>Natural-language search across all historical meeting content before permission handling and retrieval quality are proven.</li>
+</ul>
+<h3>Why this sequence?</h3>
+<p>Scheduling is a frequent, bounded workflow with a clear completion event: the meeting is confirmed. It can be tested without requiring every meeting to use AI-generated notes. Meeting continuity is a logical next step, but it introduces additional dependencies around note availability, summary accuracy and document permissions. Sequencing the work reduces scope and makes it easier to learn whether the first intervention creates value.</p>
+</section>
+
+<section id="metrics">
+<p class="num">07 · Define success</p><h2>Measuring Success</h2>
+<h3>North Star metric</h3>
+<div class="callout"><strong>Share of cross-time-zone meeting requests confirmed by the deadline while respecting participants' stated working-hour preferences.</strong><p class="small">This is a proposed outcome metric, not a metric currently reported by Google. It focuses on successful coordination without optimising for the raw number of meetings created.</p></div>
+<h3>Scheduling metrics</h3>
+<div class="table-wrap"><table><caption>Proposed metrics for collaborative scheduling</caption><thead><tr><th>Metric</th><th>What it measures</th><th>Why it matters</th></tr></thead><tbody>
+<tr><td>Poll-to-confirmation rate</td><td>Percentage of scheduling polls that result in a confirmed Calendar event.</td><td>Measures whether the workflow helps groups reach a decision.</td></tr>
+<tr><td>Time to confirmation</td><td>Median elapsed time from poll creation to final event confirmation.</td><td>Measures coordination speed and reduction in delay.</td></tr>
+<tr><td>Poll completion rate</td><td>Percentage of invited participants who submit a response before the deadline.</td><td>Shows whether the interaction is understandable and easy to complete.</td></tr>
+<tr><td>Coordination interactions</td><td>Number of follow-up messages or manual scheduling changes required per confirmed meeting, where measurable and consented.</td><td>Tests whether the poll reduces manual coordination effort.</td></tr>
+<tr><td>Meeting acceptance and attendance</td><td>Invite acceptance and actual attendance, interpreted with context.</td><td>Checks whether a confirmed slot translates into a useful meeting.</td></tr>
+<tr><td>After-hours meeting burden</td><td>Early or late meeting minutes per participant, plus how that burden is distributed across the group.</td><td>Measures whether scheduling becomes more considerate, not merely faster.</td></tr>
+</tbody></table></div>
+<h3>Meeting continuity metrics</h3>
+<div class="table-wrap"><table><caption>Proposed metrics for contextual meeting history</caption><thead><tr><th>Metric</th><th>What it measures</th><th>Why it matters</th></tr></thead><tbody>
+<tr><td>Time to retrieve meeting information</td><td>Time taken to find a relevant decision or action item from a past meeting.</td><td>Directly measures the effort the feature is intended to reduce.</td></tr>
+<tr><td>Retrieval success rate</td><td>Percentage of users who find the correct meeting context in a defined task.</td><td>Measures whether summaries and history are useful and accurate.</td></tr>
+<tr><td>Summary engagement</td><td>Views or opens of inline meeting summaries, interpreted alongside task success.</td><td>Indicates whether users discover and use the feature.</td></tr>
+<tr><td>Source-document opens</td><td>How often users open the original notes from the summary.</td><td>Checks whether the summary supports deeper verification when needed.</td></tr>
+<tr><td>User-reported confidence</td><td>Whether users feel confident that the summary accurately reflects the meeting.</td><td>Measures trust, which is essential for AI-generated meeting context.</td></tr>
+</tbody></table></div>
+<h3>Guardrail metrics</h3>
+<ul>
+<li><strong>Poll abandonment:</strong> A faster workflow is not useful if participants do not complete it.</li>
+<li><strong>Meeting cancellations and rescheduling:</strong> A confirmed slot should not create more downstream disruption.</li>
+<li><strong>Preference concentration:</strong> Check whether the same people continue to receive inconvenient meeting times.</li>
+<li><strong>Notification volume:</strong> Poll reminders should not create notification fatigue.</li>
+<li><strong>Summary correction rate:</strong> Frequent corrections may indicate inaccurate or misleading AI summaries.</li>
+<li><strong>Permission incidents:</strong> No summary or historical search result should expose notes to unauthorised users.</li>
+<li><strong>Meeting load:</strong> Do not optimise the feature in a way that encourages more meetings without improving collaboration outcomes.</li>
+</ul>
+</section>
+
+<section id="experiments">
+<p class="num">08 · Learn before scaling</p><h2>Experimentation and Validation</h2>
+<h3>Research before implementation</h3>
+<p>Before committing to a full build, I would conduct approximately 5 to 8 exploratory interviews with people who regularly coordinate work across time zones. This is a small qualitative sample intended to reveal workflow patterns and language, not to produce statistically representative findings.</p>
+<p>Key questions would include:</p>
+<ul>
+<li>Walk me through the last time you scheduled a meeting with people in different time zones.</li>
+<li>How did you choose the candidate times?</li><li>How did participants communicate that a proposed time was inconvenient?</li>
+<li>Who tends to adjust their schedule when no time works well for everyone?</li><li>Do recurring meetings rotate across time zones, or do the same people usually adjust?</li>
+<li>What happens when someone misses a meeting and needs to understand the decision?</li><li>Where do you look today for meeting notes, decisions and action items?</li>
+</ul>
+<h3>Experiment 1: Does a collaborative poll reduce scheduling friction?</h3>
+<p><strong>Hypothesis:</strong> For meetings with several participants across time zones, a structured multi-option poll will reduce time to confirmation and manual follow-up compared with the existing scheduling workflow, without reducing participant satisfaction.</p>
+<div class="table-wrap"><table><caption>Proposed experiment design</caption><thead><tr><th>Element</th><th>Plan</th></tr></thead><tbody>
+<tr><td>Target users</td><td>Organisers scheduling meetings with multiple participants across at least two time zones.</td></tr>
+<tr><td>Control</td><td>Existing Calendar scheduling workflow, including current availability and time suggestions where available.</td></tr>
+<tr><td>Treatment</td><td>Collaborative poll with multiple candidate slots, local-time display, preference collection, private alternatives and a response deadline.</td></tr>
+<tr><td>Primary measures</td><td>Time to confirmation and poll-to-confirmation rate.</td></tr>
+<tr><td>Secondary measures</td><td>Participant completion, follow-up coordination effort and satisfaction with the selected time.</td></tr>
+<tr><td>Guardrails</td><td>Poll abandonment, meeting cancellations, notification fatigue and after-hours burden distribution.</td></tr>
+<tr><td>Decision rule</td><td>Continue if the treatment improves confirmation efficiency without worsening participant satisfaction or concentrating inconvenient times on a subset of users.</td></tr>
+</tbody></table></div>
+<h3>Experiment 2: Should aggregate poll results be visible before voting?</h3>
+<p>Showing aggregate results can help participants understand the group's preferences, but it can also create majority bias. People may change their vote to align with the apparent majority or avoid selecting a time that looks unpopular.</p>
+<div class="table-wrap"><table><caption>Proposed design comparison</caption><thead><tr><th>Variant A</th><th>Variant B</th><th>What to learn</th></tr></thead><tbody>
+<tr><td>Participants submit preferences without seeing other responses. Aggregate results appear after submission.</td><td>Participants can see aggregate results while choosing their preferences.</td><td>Does early visibility improve decision quality, or does it create conformity and reduce honest preference reporting?</td></tr>
+</tbody></table></div>
+<p>Compare preference changes, completion rate, time to decision and participant-reported comfort. Individual votes should remain private by default in both variants.</p>
+<h3>Experiment 3: Do contextual summaries improve information retrieval?</h3>
+<p><strong>Hypothesis:</strong> Showing key decisions and action items inside the Calendar event will reduce the time users need to retrieve information from a past meeting, compared with opening the notes document and searching manually.</p>
+<ul>
+<li>Run moderated usability sessions with representative tasks, such as finding a decision from a meeting several weeks earlier.</li>
+<li>Compare a current workflow with a prototype that includes an inline summary and a link to the original notes.</li>
+<li>Measure task completion, time to find the correct information, incorrect answers and user confidence.</li>
+<li>Include cases where notes are unavailable, incomplete or restricted by permissions.</li>
+<li>Do not launch natural-language search until retrieval quality and permission enforcement have been evaluated.</li>
+</ul>
+<h3>Rollout approach</h3>
+<ol>
+<li><strong>Discovery:</strong> Conduct interviews and map current scheduling workflows.</li>
+<li><strong>Prototype:</strong> Test the poll flow, local-time display and privacy controls before engineering investment.</li>
+<li><strong>Limited pilot:</strong> Release to a narrow eligible cohort and monitor primary and guardrail metrics.</li>
+<li><strong>Iteration:</strong> Improve poll completion, preference collection and deadline handling based on observed friction.</li>
+<li><strong>Expansion:</strong> Broaden availability only after the workflow demonstrates value across different team sizes and time-zone patterns.</li>
+</ol>
+</section>
+
+<section id="risks">
+<p class="num">09 · Make trade-offs explicit</p><h2>Risks, Trade-offs and Reflection</h2>
+<h3>Product and user-experience risks</h3>
+<div class="table-wrap"><table><caption>Key risks and potential mitigations</caption><thead><tr><th>Risk</th><th>Why it matters</th><th>Potential mitigation</th></tr></thead><tbody>
+<tr><td>Majority bias in polls</td><td>Visible results may influence participants to follow the majority instead of reporting their real preference.</td><td>Test blind-first voting against visible aggregate results. Keep individual responses private.</td></tr>
+<tr><td>False sense of fairness</td><td>A slot that works for most people may still impose a serious burden on one participant.</td><td>Show local times and inconvenient-hour indicators. Avoid claiming that a poll automatically produces a fair outcome.</td></tr>
+<tr><td>Incomplete availability data</td><td>Calendar availability does not capture every personal constraint or preference.</td><td>Let participants state preferences and suggest alternatives. Make the limits of automated suggestions clear.</td></tr>
+<tr><td>Social pressure</td><td>Participants may hesitate to reject a time proposed by a manager or senior colleague.</td><td>Keep alternatives private by default and avoid exposing individual votes unnecessarily.</td></tr>
+<tr><td>More scheduling steps</td><td>A poll could add friction for simple one-to-one meetings.</td><td>Use the poll when it adds value, such as multi-participant or cross-time-zone coordination. Keep the existing quick-scheduling path.</td></tr>
+<tr><td>AI summary errors</td><td>An inaccurate summary could misrepresent a decision or action item.</td><td>Label summaries as AI-generated, link to source notes and provide correction mechanisms.</td></tr>
+<tr><td>Permission leakage</td><td>Surfacing notes in Calendar could expose restricted information to event guests.</td><td>Enforce source-document permissions at every point of display and retrieval.</td></tr>
+<tr><td>Over-expansion of Calendar</td><td>Adding too many collaboration features could make Calendar harder to use.</td><td>Keep the event as a lightweight context hub and link out to Meet and Drive for deeper work.</td></tr>
+</tbody></table></div>
+<h3>Key trade-offs</h3>
+<ul>
+<li><strong>Speed versus inclusion:</strong> Automatically selecting the most popular slot may be fast, but it can overlook a participant with a less common time-zone constraint. The MVP should support a fast decision while keeping the trade-offs visible to the organiser.</li>
+<li><strong>Transparency versus independence:</strong> Showing poll results can make group preferences visible, but may influence individual votes. This should be tested rather than assumed to be beneficial.</li>
+<li><strong>Automation versus control:</strong> Gemini can reduce the effort of finding options, but the organiser should retain control over the final decision.</li>
+<li><strong>Convenience versus privacy:</strong> Summaries make meeting context easier to access, but must not weaken the permissions of the original notes.</li>
+<li><strong>Personalisation versus complexity:</strong> Fairness recommendations may help recurring teams, but a complex fairness model could be difficult to explain and may not reflect individual circumstances.</li>
+</ul>
+<h3>What I would validate next</h3>
+<ol>
+<li>Whether distributed teams experience enough coordination friction to justify a dedicated poll workflow.</li>
+<li>Whether participants prefer selecting a single best time, multiple acceptable times or ranking their options.</li>
+<li>Whether private alternative suggestions make it easier to communicate constraints.</li>
+<li>Whether aggregate poll results should be visible before or after a participant votes.</li>
+<li>How teams define an inconvenient meeting time and whether they want recurring meetings to rotate.</li>
+<li>Whether inline summaries measurably improve information retrieval beyond the existing link to Gemini-generated notes.</li>
+</ol>
+<h3>Reflection</h3>
+<p>The central insight from this analysis is that scheduling is not purely a calendar-availability problem. It is a coordination and decision-making problem involving preferences, power dynamics, time zones and trade-offs. A useful product should not simply find an empty slot faster. It should help people understand the impact of the options and make a decision that participants can accept.</p>
+<p>The same principle applies after the meeting. Generating more notes is not enough if people cannot find, trust or act on the information later. The value comes from connecting meeting context to the moment when someone needs it, while preserving access controls and the original source.</p>
+<div class="callout"><strong>Final product takeaway</strong><p>Better collaboration is not achieved by adding more meetings or more AI features. It comes from reducing the friction around meaningful coordination, making trade-offs visible and helping teams carry decisions forward.</p></div>
+</section>
+
+<section id="references">
+<p class="num">Research trail</p><h2>Sources and References</h2>
+<p>The sources below support factual statements about current product capabilities and published research. Proposed workflows, hypotheses, prioritisation and metrics are independent product recommendations, not statements of Google's current roadmap.</p>
+<ol>
+<li id="source-1">Google Workspace Updates. (26 January 2026). <em>Better time suggestions for meeting with your colleagues using Gemini in Google Calendar.</em> <a href="https://workspaceupdates.googleblog.com/2026/01/improved-meeting-suggestions-gemini-calendar.html" target="_blank" rel="noopener noreferrer">Read the product update</a>.</li>
+<li id="source-2">Google Calendar Help. <em>Let Gemini in Google Calendar find times to meet.</em> <a href="https://support.google.com/calendar/answer/16690875" target="_blank" rel="noopener noreferrer">Read the Help Center article</a>.</li>
+<li id="source-3">Google Workspace Learning Center. <em>Plan and hold meetings from anywhere.</em> <a href="https://support.google.com/a/users/answer/9283193" target="_blank" rel="noopener noreferrer">Read the Learning Center article</a>.</li>
+<li id="source-4">Google Calendar Help. <em>Add or remove a video conference from your Calendar event.</em> Includes instructions for enabling Gemini meeting notes from a Calendar event. <a href="https://support.google.com/calendar/answer/9896550" target="_blank" rel="noopener noreferrer">Read the Help Center article</a>.</li>
+<li id="source-5">Mok, L., Sun, L., Sen, S. and Sarrafzadeh, B. (2023). <em>Challenging but Connective: Large-Scale Characteristics of Synchronous Collaboration Across Time Zones.</em> Proceedings of the 2023 CHI Conference on Human Factors in Computing Systems. <a href="https://www.microsoft.com/en-us/research/publication/challenging-but-connective-large-scale-characteristics-of-synchronous-collaboration-across-time-zones/" target="_blank" rel="noopener noreferrer">Microsoft Research publication page</a> · <a href="https://doi.org/10.1145/3544548.3581141" target="_blank" rel="noopener noreferrer">DOI</a>.</li>
+</ol>
+<p class="small">Product features, eligibility and availability can change. The cited Google documentation should be rechecked before publishing the portfolio publicly.</p>
+</section>
+</main>
+</div>
+<footer><div class="page"><p><strong>Google APM Portfolio · Case Study 01</strong></p><p>Independent product analysis. All solution concepts, prioritisation choices, proposed metrics and experiments are recommendations for evaluation, not completed product work or validated outcomes.</p></div></footer>
+</body>
+</html>

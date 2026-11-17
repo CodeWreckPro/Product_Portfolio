@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Google Maps product case study proposing Group Journey Mode, a shared coordination experience for people travelling to the same destination in separate vehicles.">
+  <meta name="document-type" content="Product management case study">
+  <meta name="author" content="Independent product case study">
+  <title>Google Maps: Group Journey Mode | Product Case Study</title>
+  <style>
+    :root {
+      --ink: #18212f;
+      --muted: #5d6878;
+      --line: #dce2e9;
+      --surface: #f5f7fa;
+      --surface-strong: #edf1f6;
+      --accent: #2457c5;
+      --accent-soft: #eaf0ff;
+      --green: #18794e;
+      --green-soft: #e8f5ee;
+      --amber: #8b5a00;
+      --amber-soft: #fff5df;
+      --page: #ffffff;
+      --max-width: 980px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: #f1f3f6;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.68;
+    }
+
+    .document {
+      width: min(100%, var(--max-width));
+      margin: 0 auto;
+      padding: 52px 64px 80px;
+      background: var(--page);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-size: 0.76rem;
+      font-weight: 750;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, h4 {
+      color: var(--ink);
+      line-height: 1.25;
+      letter-spacing: -0.025em;
+    }
+
+    h1 {
+      max-width: 800px;
+      margin: 0;
+      font-size: clamp(2.2rem, 5vw, 3.35rem);
+      font-weight: 780;
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 1.8rem;
+      font-weight: 750;
+    }
+
+    h3 {
+      margin: 30px 0 12px;
+      font-size: 1.25rem;
+      font-weight: 720;
+    }
+
+    h4 {
+      margin: 22px 0 8px;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    p { margin: 0 0 15px; }
+
+    a {
+      color: var(--accent);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+      overflow-wrap: anywhere;
+    }
+
+    ul, ol {
+      margin: 8px 0 18px;
+      padding-left: 1.35rem;
+    }
+
+    li { margin: 5px 0; }
+
+    strong { font-weight: 720; }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 18px 0 12px;
+      color: var(--muted);
+      font-size: 1.18rem;
+      line-height: 1.55;
+    }
+
+    .thesis {
+      margin: 26px 0 32px;
+      padding: 20px 24px;
+      border-left: 4px solid var(--accent);
+      background: var(--accent-soft);
+      font-size: 1.08rem;
+      font-weight: 620;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 22px;
+    }
+
+    .meta span, .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: #fff;
+      font-size: 0.78rem;
+      font-weight: 680;
+    }
+
+    .tag.core {
+      border-color: #b8d9c8;
+      color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .tag.enhancement {
+      border-color: #c8d5f5;
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .tag.separate {
+      border-color: #ead7a8;
+      color: var(--amber);
+      background: var(--amber-soft);
+    }
+
+    nav.toc {
+      margin: 42px 0 54px;
+      padding: 24px 26px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+
+    nav.toc h2 {
+      margin: 0 0 14px;
+      font-size: 1.15rem;
+    }
+
+    nav.toc ol {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 5px 26px;
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    nav.toc li { margin: 2px 0; }
+
+    nav.toc a {
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    nav.toc a:hover { color: var(--accent); text-decoration: underline; }
+
+    .section {
+      margin-top: 58px;
+      padding-top: 34px;
+      border-top: 1px solid var(--line);
+      scroll-margin-top: 20px;
+    }
+
+    .section-number {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .section-intro {
+      max-width: 780px;
+      margin: -4px 0 24px;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .callout {
+      margin: 20px 0;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--surface);
+    }
+
+    .callout p:last-child { margin-bottom: 0; }
+
+    .callout.success {
+      border-color: #b8d9c8;
+      background: var(--green-soft);
+    }
+
+    .callout.warning {
+      border-color: #ead7a8;
+      background: var(--amber-soft);
+    }
+
+    .table-wrap {
+      width: 100%;
+      margin: 18px 0 26px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.93rem;
+    }
+
+    caption {
+      padding: 12px 14px;
+      color: var(--muted);
+      background: var(--surface);
+      font-size: 0.82rem;
+      font-weight: 650;
+      text-align: left;
+    }
+
+    th, td {
+      min-width: 120px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      color: #303b4b;
+      background: var(--surface-strong);
+      font-size: 0.82rem;
+      font-weight: 750;
+    }
+
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:nth-child(even) td { background: #fcfdff; }
+
+    .equation {
+      display: block;
+      margin: 18px 0;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--surface);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    blockquote {
+      margin: 20px 0;
+      padding: 4px 0 4px 20px;
+      border-left: 3px solid var(--accent);
+      color: #344154;
+      font-size: 1.08rem;
+      font-weight: 600;
+    }
+
+    .subsection {
+      margin-top: 28px;
+    }
+
+    .references li {
+      margin: 10px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .footnote {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 700px) {
+      .document { padding: 32px 22px 54px; }
+      nav.toc ol { grid-template-columns: 1fr; }
+      h2 { font-size: 1.55rem; }
+      th, td { min-width: 145px; padding: 10px 11px; }
+    }
+
+    @media print {
+      html, body { background: #fff; }
+      .document { width: 100%; padding: 0; }
+      nav.toc { break-inside: avoid; }
+      .section { break-before: page; }
+      a { color: inherit; text-decoration: none; }
+      .table-wrap { overflow: visible; }
+    }
+  </style>
+</head>
+<body>
+<main class="document">
+  <article>
+    <header id="top">
+      <p class="eyebrow">Product Management Case Study · Google Maps</p>
+      <h1>Group Journey Mode</h1>
+      <p class="subtitle">Moving together, even when travelling separately.</p>
+      <p>
+        A proposal to help friends and families travelling in separate vehicles coordinate
+        their journeys, understand each other's progress, and regroup without losing the
+        flexibility of individual navigation.
+      </p>
+      <div class="thesis">
+        Google Maps already helps people navigate to a destination. Group Journey Mode
+        would help people navigate together as a group, even when they are travelling in
+        different vehicles and following different routes.
+      </div>
+      <div class="meta" aria-label="Document attributes">
+        <span>Independent product proposal</span>
+        <span>9-part case study</span>
+        <span>Product strategy and feature design</span>
+      </div>
+    </header>
+
+    <nav class="toc" aria-label="Table of contents">
+      <h2>Case study structure</h2>
+      <ol>
+        <li><a href="#product-overview">Product Overview</a></li>
+        <li><a href="#user-research">User Research</a></li>
+        <li><a href="#problem-identification">Problem Identification</a></li>
+        <li><a href="#user-journey">User Journey</a></li>
+        <li><a href="#proposed-solutions">Proposed Solutions</a></li>
+        <li><a href="#prioritisation">Prioritisation</a></li>
+        <li><a href="#success-metrics">Success Metrics</a></li>
+        <li><a href="#experimentation">Experimentation</a></li>
+        <li><a href="#risks-reflection">Risks &amp; Reflection</a></li>
+      </ol>
+    </nav>
+
+    <section class="section" id="product-overview">
+      <span class="section-number">01</span>
+      <h2>Product Overview</h2>
+      <p class="section-intro">Product, users, value proposition and business model.</p>
+
+      <h3>Product</h3>
+      <p>
+        <strong>Google Maps</strong> is a navigation and local discovery platform that
+        helps users explore places, plan journeys and navigate through the physical world.
+      </p>
+      <p>
+        Its core experiences include turn-by-turn navigation, real-time traffic, location
+        sharing, route alternatives, local business discovery and trip progress sharing.
+      </p>
+      <p>
+        Google has also expanded Maps with Gemini-powered capabilities such as Ask Maps,
+        which allows users to ask conversational questions, discover places and plan
+        journeys. See
+        <a href="https://blog.google/products-and-platforms/products/maps/ask-maps-immersive-navigation/">
+          Google's Ask Maps announcement
+        </a>.
+      </p>
+
+      <h3>The opportunity</h3>
+      <p>
+        Most navigation experiences are designed around an individual travelling from one
+        location to another. However, many real-world journeys involve multiple people
+        travelling towards the same destination in separate vehicles.
+      </p>
+      <p>
+        Imagine a group of friends driving to a holiday destination in three different
+        cars. Everyone has their own navigation, ETA and route. They may share their live
+        locations, but coordinating the journey still requires switching between Maps,
+        messaging apps and phone calls.
+      </p>
+      <p>
+        The opportunity is to move beyond individual navigation and introduce a shared
+        coordination layer.
+      </p>
+
+      <h3>Proposed product: Group Journey Mode</h3>
+      <p>
+        Group Journey Mode is a group-level coordination experience built into Google Maps.
+        It allows multiple participants travelling towards a shared destination to:
+      </p>
+      <ul>
+        <li>Create a journey and invite other participants.</li>
+        <li>View everyone's location and individual route on a shared map.</li>
+        <li>Understand who is ahead, behind or travelling on a different route.</li>
+        <li>Check road distance and estimated travel time between participants.</li>
+        <li>Identify opportunities to converge or regroup.</li>
+        <li>Suggest and agree on meeting points.</li>
+        <li>Resume navigation to the original destination after regrouping.</li>
+      </ul>
+      <p>
+        Each participant retains control over their own route. The objective is not to make
+        every vehicle follow the exact same path, but to make the overall group journey
+        easier to coordinate.
+      </p>
+
+      <h3>Target users</h3>
+      <div class="table-wrap">
+        <table>
+          <caption>Primary and secondary user segments</caption>
+          <thead>
+            <tr><th scope="col">User segment</th><th scope="col">Need</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Friends travelling in separate cars</td><td>Stay together and avoid repeatedly calling each other.</td></tr>
+            <tr><td>Families on road trips</td><td>Coordinate stops and ensure everyone reaches the destination.</td></tr>
+            <tr><td>Group trip organisers</td><td>Understand the group's progress and coordinate meetups.</td></tr>
+            <tr><td>Independent drivers</td><td>Maintain route flexibility while staying informed about others.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Primary segment:</strong> Friends and families travelling to the same destination in multiple vehicles.</p>
+
+      <h3>Value proposition</h3>
+      <ul>
+        <li><strong>For travellers:</strong> Better awareness of the group, fewer coordination calls and easier regrouping.</li>
+        <li><strong>For the group organiser:</strong> A single view of the group's progress instead of manually tracking everyone.</li>
+        <li><strong>For Google Maps:</strong> A deeper role in the entire journey, not just individual route navigation.</li>
+      </ul>
+
+      <h3>Business model</h3>
+      <p>
+        Google Maps is a free consumer product supported by Google's broader advertising
+        ecosystem, including location-based advertising opportunities. Google also
+        monetises its Maps Platform through paid Maps, Routes and Places APIs for businesses
+        and developers.
+      </p>
+      <p>
+        Group Journey Mode would primarily be a product engagement and retention opportunity
+        rather than a new paid consumer feature. Better group coordination could increase
+        Maps usage during longer journeys and create more opportunities for local discovery.
+      </p>
+      <p>
+        Any monetisation through promoted places would need to remain separate from
+        safety-critical route and meetup recommendations.
+      </p>
+    </section>
+
+    <section class="section" id="user-research">
+      <span class="section-number">02</span>
+      <h2>User Research</h2>
+      <p class="section-intro">User needs, pain points, existing capabilities and research findings.</p>
+
+      <h3>Understanding the existing experience</h3>
+      <p>The first step is understanding what Google Maps already provides.</p>
+      <ul>
+        <li><strong>Location Sharing:</strong> Users can share their real-time location with selected people for a chosen duration.</li>
+        <li><strong>Share Trip Progress:</strong> During navigation, users can share their destination, ETA and current location. Sharing ends when they reach the destination or stop navigating.</li>
+        <li><strong>Individual Navigation:</strong> Each user can navigate independently with traffic-aware routes and alternative routes.</li>
+        <li><strong>Search Along Route:</strong> Users can discover places such as restaurants and fuel stations along their journey.</li>
+        <li><strong>Ask Maps:</strong> Users can use conversational queries to discover places and plan journeys.</li>
+      </ul>
+      <p>
+        Sources:
+        <a href="https://support.google.com/maps/answer/15437054">Google Maps Location Sharing and Trip Progress</a>
+        and
+        <a href="https://support.google.com/maps/answer/3273406">Google Maps Navigation</a>.
+      </p>
+      <p>
+        These features provide important building blocks. The proposal is not to replace
+        them. It is to bring the relevant capabilities together into a more cohesive
+        group-travel experience.
+      </p>
+
+      <h3>Initial user insight</h3>
+      <p>
+        The idea comes from a personal observation while travelling with friends in
+        separate cars. Even when everyone shares their live location, understanding the
+        group's actual movement can be difficult, particularly in unfamiliar areas.
+      </p>
+      <ul>
+        <li>A location pin shows where someone is, but not necessarily whether they are ahead or behind you.</li>
+        <li>When two vehicles are travelling along the same road, it can be difficult to determine which vehicle is leading.</li>
+        <li>The compass or direction indicator does not always provide enough confidence to understand another vehicle's movement.</li>
+        <li>If someone falls behind, the group has to manually compare locations and ETAs.</li>
+        <li>If everyone wants to stop together, deciding where to meet often involves several calls and messages.</li>
+      </ul>
+      <p>
+        The underlying problem is not simply the absence of location sharing. It is the
+        effort required to interpret and coordinate the information being shared.
+      </p>
+
+      <h3>External research signals</h3>
+      <p>
+        There are also relevant feature requests in the Google Maps Community:
+      </p>
+      <ul>
+        <li>
+          A 2025 community discussion describes the difficulty of coordinating multiple
+          vehicles travelling towards the same destination and requests a shared group
+          navigation experience:
+          <a href="https://support.google.com/maps/thread/390982252/group-travel-navigation-is-difficult-with-multiple-vehicles">
+            Group travel navigation is difficult with multiple vehicles
+          </a>.
+        </li>
+        <li>
+          A 2026 feature request proposes a group trip or convoy experience with shared
+          vehicle locations, common stops and group coordination:
+          <a href="https://support.google.com/maps/thread/440491068/i-would-like-a-group-trip-convoy-mode-in-google-maps-users-could-create-a-trip-invite-multiple-veh">
+            Group Trip / Convoy Mode feature request
+          </a>.
+        </li>
+      </ul>
+      <div class="callout warning">
+        <strong>Evidence quality note:</strong>
+        These are qualitative signals that the problem is worth investigating. They are
+        not representative user research and do not establish how widespread the problem is.
+      </div>
+
+      <h3>User needs and pain points</h3>
+      <div class="table-wrap">
+        <table>
+          <caption>Observed friction translated into product opportunities</caption>
+          <thead>
+            <tr><th scope="col">User need</th><th scope="col">Current friction</th><th scope="col">Opportunity</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Know where everyone is</td><td>Location pins require interpretation.</td><td>Show group progress and route context.</td></tr>
+            <tr><td>Understand who is ahead or behind</td><td>Geographic position alone can be misleading.</td><td>Show relative progress along shared routes.</td></tr>
+            <tr><td>Estimate how far someone is</td><td>Users manually compare locations.</td><td>Show road distance and relevant ETAs.</td></tr>
+            <tr><td>Regroup during a journey</td><td>Calls and messages are needed to coordinate.</td><td>Suggest mutually accessible meeting points.</td></tr>
+            <tr><td>Continue after regrouping</td><td>Participants manually restart navigation.</td><td>Preserve and resume the original destination.</td></tr>
+            <tr><td>Explore during the journey</td><td>Stops and scenic routes require separate planning.</td><td>Introduce a dedicated route preference.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Research questions to validate</h3>
+      <ol>
+        <li>How frequently do people travel to the same destination in separate vehicles?</li>
+        <li>How many participants typically travel together?</li>
+        <li>How often do groups get separated or need to regroup?</li>
+        <li>Which information matters most: relative position, distance, ETA or route progress?</li>
+        <li>Would users prefer a shared route or independent routes with group visibility?</li>
+        <li>How much control should the group organiser have over meeting points and route decisions?</li>
+      </ol>
+
+      <h3>Proposed primary research</h3>
+      <p>
+        I would conduct contextual interviews with 8 to 12 people who have travelled in
+        groups using multiple vehicles.
+      </p>
+      <p>
+        Rather than asking whether they want a group navigation feature, I would ask them
+        to reconstruct their most recent group journey. I would investigate the number of
+        vehicles, how they shared locations, how often they communicated, what happened
+        when someone fell behind, and how they decided where to regroup.
+      </p>
+      <p>
+        This would help establish whether the problem is frequent and important enough to
+        justify a dedicated experience.
+      </p>
+    </section>
+
+    <section class="section" id="problem-identification">
+      <span class="section-number">03</span>
+      <h2>Problem Identification</h2>
+      <p class="section-intro">Clearly defined problems and opportunities.</p>
+
+      <h3>Problem 1: Lack of contextual group awareness</h3>
+      <p>
+        Location sharing provides visibility into where another person is, but it does not
+        necessarily explain their progress relative to the group.
+      </p>
+      <p>
+        A location pin alone does not tell a driver whether another vehicle is ahead,
+        behind, travelling in the opposite direction or taking a different route. Users
+        have to interpret this information themselves.
+      </p>
+
+      <h3>Problem 2: Manual journey coordination</h3>
+      <p>Each participant has an independent navigation experience. The group has no unified view of:</p>
+      <ul>
+        <li>Everyone's route.</li>
+        <li>Relative progress.</li>
+        <li>Expected arrival times.</li>
+        <li>Potential route convergence.</li>
+        <li>Whether someone has stopped or fallen behind.</li>
+      </ul>
+      <p>
+        As a result, coordination moves outside Maps and into phone calls and messaging
+        applications.
+      </p>
+
+      <h3>Problem 3: Inefficient regrouping</h3>
+      <p>
+        When a group gets separated, finding a suitable meeting point becomes a manual
+        process. Participants have to compare their locations, identify a convenient place
+        and estimate how long everyone will take to reach it.
+      </p>
+      <p>
+        Once they meet, they must also restart navigation to their original destination.
+      </p>
+
+      <h3>Core problem statement</h3>
+      <blockquote>
+        People travelling to the same destination in separate vehicles lack a unified way
+        to understand and coordinate their journeys.
+      </blockquote>
+      <p>
+        Although Google Maps provides individual navigation and location sharing, users
+        still have to interpret relative positions, compare routes, estimate catch-up times
+        and coordinate meeting points manually. This creates unnecessary cognitive load,
+        communication overhead and uncertainty, particularly when travelling through
+        unfamiliar areas.
+      </p>
+
+      <h3>Jobs to be done</h3>
+      <blockquote>
+        When I am travelling with friends or family in separate vehicles, I want to
+        understand everyone's progress and coordinate stops or meetups, so that we can
+        complete the journey together without constantly communicating or compromising
+        our individual routes.
+      </blockquote>
+
+      <h3>Product opportunity</h3>
+      <blockquote>
+        How might Google Maps help groups travelling in separate vehicles coordinate
+        their journeys, understand each other's progress and regroup intelligently while
+        preserving individual navigation flexibility?
+      </blockquote>
+
+      <h3>What the product should not solve</h3>
+      <p>The objective is not to:</p>
+      <ul>
+        <li>Force every participant onto the same route.</li>
+        <li>Turn Google Maps into a group messaging application.</li>
+        <li>Automatically change someone's route without consent.</li>
+        <li>Encourage drivers to speed up or take unsafe shortcuts to catch up.</li>
+        <li>Make location sharing permanent or mandatory.</li>
+      </ul>
+      <p>These boundaries help keep the product focused on navigation and coordination.</p>
+    </section>
+
+    <section class="section" id="user-journey">
+      <span class="section-number">04</span>
+      <h2>User Journey</h2>
+      <p class="section-intro">Existing experience, friction points and improved journey.</p>
+
+      <h3>Existing journey</h3>
+      <p>
+        Consider a group of four friends travelling to a holiday destination in three cars.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <caption>Current multi-vehicle group travel experience</caption>
+          <thead>
+            <tr><th scope="col">Stage</th><th scope="col">Existing experience</th><th scope="col">Friction</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Planning</td><td>Destination shared in a group chat.</td><td>No shared navigation session.</td></tr>
+            <tr><td>Starting</td><td>Everyone starts their own navigation.</td><td>Independent routes and ETAs.</td></tr>
+            <tr><td>Tracking</td><td>Participants share live locations.</td><td>Requires manual interpretation.</td></tr>
+            <tr><td>Separation</td><td>One vehicle falls behind.</td><td>Repeated calls and messages.</td></tr>
+            <tr><td>Regrouping</td><td>Group discusses a possible stop.</td><td>No unified view of meeting options.</td></tr>
+            <tr><td>Resuming</td><td>Everyone restarts navigation.</td><td>Original destination must be selected again.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Proposed journey</h3>
+      <div class="table-wrap">
+        <table>
+          <caption>Improved journey using Group Journey Mode</caption>
+          <thead>
+            <tr><th scope="col">Stage</th><th scope="col">Improved experience</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Create</td><td>One participant creates a group journey and sets the destination.</td></tr>
+            <tr><td>Invite</td><td>Other participants join through a shared link.</td></tr>
+            <tr><td>Navigate</td><td>Each participant starts their own route.</td></tr>
+            <tr><td>Track</td><td>Everyone can see the group's location, routes and progress.</td></tr>
+            <tr><td>Coordinate</td><td>Participants can identify who is ahead, behind or on a different route.</td></tr>
+            <tr><td>Regroup</td><td>Maps suggests suitable meeting points or allows a participant to share one.</td></tr>
+            <tr><td>Resume</td><td>Everyone can continue towards the original destination.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout success">
+        <strong>Key experience principle:</strong>
+        The group shares a journey, not necessarily a route.
+      </div>
+      <p>
+        This distinction is important. A group travelling together may have different
+        starting points, vehicle preferences, traffic conditions or reasons to take
+        alternative routes. The product should support coordination without sacrificing
+        individual navigation.
+      </p>
+    </section>
+
+    <section class="section" id="proposed-solutions">
+      <span class="section-number">05</span>
+      <h2>Proposed Solutions</h2>
+      <p class="section-intro">Feature concepts, workflows and product decisions.</p>
+      <p>I would build the experience around five core capabilities, with Joyride as an adjacent platform-level route preference.</p>
+
+      <div class="subsection">
+        <h3>5.1 Create a Group Journey <span class="tag core">Core feature</span></h3>
+        <p>
+          A user can create a group journey directly from the navigation flow.
+        </p>
+        <h4>Workflow</h4>
+        <ol>
+          <li>Select a destination.</li>
+          <li>Choose "Create Group Journey".</li>
+          <li>Generate an invitation link or QR code.</li>
+          <li>Share it with other participants.</li>
+          <li>Participants join and explicitly consent to sharing their location for the session.</li>
+        </ol>
+        <p>Once participants join, the group journey becomes active. Each participant can start navigation independently.</p>
+        <h4>Product decisions</h4>
+        <ul>
+          <li>Location sharing is limited to the active session.</li>
+          <li>Participants can leave the session at any time.</li>
+          <li>The organiser cannot force another participant to change routes.</li>
+          <li>The session automatically expires after the journey ends or after a defined inactivity period.</li>
+        </ul>
+        <p>This reduces the effort of setting up location sharing individually with multiple people.</p>
+      </div>
+
+      <div class="subsection">
+        <h3>5.2 Shared Map and Relative Position Awareness <span class="tag core">Core differentiator</span></h3>
+        <p>The shared map is the central experience of Group Journey Mode.</p>
+        <p>It displays:</p>
+        <ul>
+          <li>The user's own route.</li>
+          <li>Other participants' live locations.</li>
+          <li>Each participant's individual route.</li>
+          <li>The shared destination.</li>
+          <li>Common route segments.</li>
+          <li>Group progress and estimated arrival information.</li>
+        </ul>
+        <p>
+          The most important improvement is moving beyond location pins to contextual
+          route awareness. For example, if two vehicles are travelling along the same
+          road, Maps should be able to communicate whether one vehicle is ahead or behind
+          the other.
+        </p>
+        <p>
+          If participants are taking different routes, it should avoid misleading
+          ahead/behind labels and instead show useful information such as road distance
+          and ETA.
+        </p>
+        <h4>Participant information card</h4>
+        <div class="table-wrap">
+          <table>
+            <caption>Information available when a participant is selected</caption>
+            <thead><tr><th scope="col">Information</th><th scope="col">Purpose</th></tr></thead>
+            <tbody>
+              <tr><td>Current location</td><td>Understand where the participant is.</td></tr>
+              <tr><td>Road distance</td><td>Understand the distance between vehicles.</td></tr>
+              <tr><td>ETA to their current location</td><td>Estimate the time needed to reach their latest known position.</td></tr>
+              <tr><td>Relative route progress</td><td>Understand who is ahead or behind on a shared route.</td></tr>
+              <tr><td>Location freshness</td><td>Know how recently the position was updated.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          An advanced version could estimate a rendezvous time if both vehicles continue
+          along their current routes. This should be treated differently from simply
+          calculating an ETA to someone's current location, because the other vehicle is
+          moving.
+        </p>
+        <p>
+          If a reliable estimate is not possible, Maps should communicate that clearly
+          rather than display false precision.
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h3>5.3 Intelligent Route Coordination <span class="tag enhancement">Enhancement</span></h3>
+        <p>
+          When participants are travelling along different routes, Maps could identify
+          opportunities for their journeys to converge.
+        </p>
+        <p>For example:</p>
+        <ul>
+          <li>Two vehicles are travelling on separate routes that merge further ahead.</li>
+          <li>One participant is taking a route with a significant delay.</li>
+          <li>A small route adjustment could allow participants to travel together for part of the journey.</li>
+        </ul>
+        <p>
+          Maps could suggest an alternative route with a clear explanation of the
+          additional time or distance involved.
+        </p>
+        <p>
+          However, route changes should always remain optional. Each participant should
+          be able to accept or decline a suggestion independently.
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h3>5.4 Intelligent Meetup Points <span class="tag core">Core coordination capability</span></h3>
+        <p>
+          This feature addresses one of the biggest coordination problems: deciding where
+          the group should meet.
+        </p>
+        <p>If participants become separated, Maps could suggest meeting points based on:</p>
+        <ul>
+          <li>Estimated travel time for each vehicle.</li>
+          <li>Road accessibility.</li>
+          <li>Current traffic conditions.</li>
+          <li>Parking availability.</li>
+          <li>Nearby facilities.</li>
+          <li>Whether the location is suitable for a group stop.</li>
+        </ul>
+        <p>
+          For example, instead of asking everyone to stop somewhere along the highway,
+          Maps could recommend a fuel station, restaurant or accessible parking area that
+          is reasonably convenient for everyone.
+        </p>
+        <p>Participants could:</p>
+        <ol>
+          <li>Accept the suggested meetup.</li>
+          <li>Suggest another location.</li>
+          <li>Continue independently towards the original destination.</li>
+        </ol>
+        <p>
+          Gemini could help users express what they need conversationally, such as:
+          "Find a good place for all of us to meet. It should have parking, clean restrooms
+          and somewhere to get food."
+        </p>
+        <p>
+          Gemini would help interpret the request and explain suitable options. Maps'
+          underlying location and routing systems would determine actual accessibility,
+          travel times and route feasibility.
+        </p>
+        <div class="callout">
+          <strong>Important product decision:</strong>
+          A suggested meetup should never automatically change everyone's navigation.
+        </div>
+      </div>
+
+      <div class="subsection">
+        <h3>5.5 Resume the Original Journey <span class="tag core">Core feature</span></h3>
+        <p>
+          Once the group reaches the agreed meeting point, Maps should preserve the
+          original destination.
+        </p>
+        <p>
+          Participants can select "Continue Journey" and receive updated navigation from
+          their current location. The group session remains active, so participants can
+          continue seeing one another's locations and progress.
+        </p>
+        <p>
+          This avoids making users repeat the entire setup process after every stop.
+        </p>
+      </div>
+
+      <div class="subsection">
+        <h3>5.6 Joyride: A Universal Route Preference <span class="tag separate">Adjacent product opportunity</span></h3>
+        <p>
+          Joyride should not be exclusive to Group Journey Mode. It should be available
+          whenever a user plans a route, whether they are travelling individually or as
+          part of a group.
+        </p>
+        <p>
+          I would treat it as a route preference, independent of the journey context.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>Two independent dimensions of journey planning</caption>
+            <thead><tr><th scope="col">Dimension</th><th scope="col">Options</th></tr></thead>
+            <tbody>
+              <tr><td>Journey context</td><td>Individual or Group</td></tr>
+              <tr><td>Route preference</td><td>Fastest, Scenic, Explore Along the Way</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h4>Scenic route</h4>
+        <p>
+          Prioritises scenic roads, viewpoints, landscapes and interesting stretches of
+          road rather than optimising exclusively for travel time.
+        </p>
+        <h4>Explore Along the Way</h4>
+        <p>
+          Helps users discover interesting places, restaurants, attractions and
+          experiences along their journey.
+        </p>
+        <p>
+          The user can see the additional travel time and distance before choosing.
+        </p>
+        <p>
+          In a group journey, participants can propose a scenic route or a stop. Everyone
+          can see the proposed change and decide whether to participate. Each vehicle
+          still receives its own navigable route.
+        </p>
+        <p>
+          This creates two complementary product opportunities:
+        </p>
+        <ul>
+          <li><strong>Journey coordination:</strong> Helping people travel together, even in separate vehicles.</li>
+          <li><strong>Journey experience:</strong> Helping people choose how they want to travel, whether efficiently or exploratively.</li>
+        </ul>
+        <p>
+          Joyride is therefore a platform-level route preference, not a dependency of
+          Group Journey Mode.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="prioritisation">
+      <span class="section-number">06</span>
+      <h2>Prioritisation</h2>
+      <p class="section-intro">RICE-style assessment, MVP scope and reasoning behind trade-offs.</p>
+
+      <h3>Prioritisation framework</h3>
+      <p>
+        The objective is to validate the core coordination problem before investing in
+        advanced AI capabilities or complex route optimisation.
+      </p>
+      <p>I would use RICE as the underlying framework:</p>
+      <div class="equation" role="math" aria-label="RICE equals Reach multiplied by Impact multiplied by Confidence, divided by Effort">
+        RICE = (Reach × Impact × Confidence) / Effort
+      </div>
+      <p>
+        At this stage, numerical scores would create false precision because actual reach,
+        impact, confidence and engineering effort have not yet been measured. Instead,
+        I would use a directional assessment and refine it after user research and
+        engineering estimation.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <caption>Directional prioritisation, not measured RICE scores</caption>
+          <thead>
+            <tr>
+              <th scope="col">Feature</th><th scope="col">Reach</th><th scope="col">Impact</th>
+              <th scope="col">Confidence</th><th scope="col">Effort</th><th scope="col">Priority</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Create and join group sessions</td><td>Medium</td><td>High</td><td>High</td><td>Medium</td><td>P0</td></tr>
+            <tr><td>Shared map and participant locations</td><td>Medium</td><td>High</td><td>High</td><td>High</td><td>P0</td></tr>
+            <tr><td>Relative route progress</td><td>Medium</td><td>High</td><td>Medium</td><td>High</td><td>P0</td></tr>
+            <tr><td>Road distance and participant ETA</td><td>Medium</td><td>High</td><td>Medium</td><td>Medium</td><td>P0</td></tr>
+            <tr><td>Share a meetup location</td><td>Medium</td><td>High</td><td>High</td><td>Medium</td><td>P0</td></tr>
+            <tr><td>Intelligent meetup recommendations</td><td>Medium</td><td>High</td><td>Medium</td><td>High</td><td>P1</td></tr>
+            <tr><td>Automatic route convergence suggestions</td><td>Medium</td><td>Medium</td><td>Medium</td><td>High</td><td>P1</td></tr>
+            <tr><td>Gemini-powered meetup discovery</td><td>Medium</td><td>Medium</td><td>Medium</td><td>High</td><td>P1</td></tr>
+            <tr><td>Joyride route preference</td><td>Broader</td><td>Medium</td><td>Medium</td><td>High</td><td>Separate workstream</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="footnote">These are directional product judgements, not measured RICE scores.</p>
+
+      <h3>MVP scope</h3>
+      <p>The first version should include:</p>
+      <ol>
+        <li>Create a group journey and invite participants.</li>
+        <li>Set a shared destination.</li>
+        <li>Enable session-based location sharing.</li>
+        <li>Display participants and their individual routes on a shared map.</li>
+        <li>Show relative route progress, road distance and relevant ETAs.</li>
+        <li>Allow participants to share and accept a meetup location.</li>
+        <li>Resume navigation to the original destination.</li>
+      </ol>
+      <p>
+        This MVP addresses the core problem without depending on advanced AI or
+        complicated route optimisation.
+      </p>
+
+      <h3>What I would defer</h3>
+      <ul>
+        <li><strong>Advanced Gemini integration:</strong> Useful for more natural meetup discovery, but not necessary to validate the core problem.</li>
+        <li><strong>Automatic route convergence:</strong> Requires reliable route comparisons and a strong understanding of when a change benefits the group.</li>
+        <li><strong>Complex group voting:</strong> A simple accept or decline flow is enough initially.</li>
+        <li><strong>Group chat and social features:</strong> Existing messaging applications already serve this purpose. Building another chat experience would increase complexity without strengthening the core value proposition.</li>
+        <li><strong>Joyride:</strong> A valuable adjacent opportunity, but it should be developed and validated as a universal route preference rather than bundled into the Group Journey MVP.</li>
+      </ul>
+
+      <h3>Why this prioritisation?</h3>
+      <p>
+        The biggest risk is building an elaborate group navigation system before proving
+        that people need more than existing location sharing.
+      </p>
+      <blockquote>
+        Does giving a group a shared understanding of everyone's route and progress make
+        travelling together in separate vehicles meaningfully easier?
+      </blockquote>
+    </section>
+
+    <section class="section" id="success-metrics">
+      <span class="section-number">07</span>
+      <h2>Success Metrics</h2>
+      <p class="section-intro">North Star Metric, KPIs and guardrails.</p>
+
+      <h3>North Star Metric</h3>
+      <p><strong>Successful Group Journey Sessions</strong></p>
+      <p>
+        The number of activated group journeys in which participants successfully reach
+        the shared destination or an agreed meetup point.
+      </p>
+      <p>
+        A session would count as successful when participants who remain active in the
+        journey reach the shared destination or a mutually accepted regroup point. This
+        should be measured alongside the completion rate, so growth in the number of
+        sessions does not hide a poor journey experience.
+      </p>
+
+      <h3>Supporting KPIs</h3>
+      <div class="table-wrap">
+        <table>
+          <caption>Core product and journey performance metrics</caption>
+          <thead><tr><th scope="col">Metric</th><th scope="col">What it measures</th></tr></thead>
+          <tbody>
+            <tr><td>Group Journey Activation Rate</td><td>Percentage of created sessions where at least two participants join and start navigating.</td></tr>
+            <tr><td>Group Journey Completion Rate</td><td>Percentage of activated sessions successfully completed.</td></tr>
+            <tr><td>Time to Regroup</td><td>Time between agreeing on a meetup and participants reaching it.</td></tr>
+            <tr><td>Meetup Acceptance Rate</td><td>Percentage of suggested meetups accepted by participants.</td></tr>
+            <tr><td>ETA Accuracy</td><td>Difference between predicted and actual arrival times.</td></tr>
+            <tr><td>Repeat Group Journey Usage</td><td>Percentage of users who create or join another group journey.</td></tr>
+            <tr><td>Session Join Rate</td><td>Percentage of invited participants who join a session.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Experience metrics</h3>
+      <p>I would also measure whether participants can correctly interpret the shared map:</p>
+      <ul>
+        <li>Can a user identify who is ahead or behind?</li>
+        <li>Can they understand whether two vehicles are travelling along the same route?</li>
+        <li>Can they identify the most convenient meetup point?</li>
+        <li>Can they understand the ETA information without needing to call another participant?</li>
+      </ul>
+      <p>These are especially useful during prototype testing.</p>
+
+      <h3>Guardrail metrics</h3>
+      <div class="table-wrap">
+        <table>
+          <caption>Safety, reliability and privacy guardrails</caption>
+          <thead><tr><th scope="col">Guardrail</th><th scope="col">Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td>Driver interaction frequency</td><td>The feature must not increase distracted driving.</td></tr>
+            <tr><td>Location accuracy and freshness</td><td>Incorrect locations could create unsafe decisions.</td></tr>
+            <tr><td>ETA error</td><td>Misleading ETAs could increase frustration.</td></tr>
+            <tr><td>Battery consumption</td><td>Continuous location sharing must remain practical.</td></tr>
+            <tr><td>Location-sharing opt-outs</td><td>Users must retain control over their privacy.</td></tr>
+            <tr><td>Unnecessary route deviations</td><td>Coordination should not make journeys significantly worse.</td></tr>
+            <tr><td>Safety-related complaints</td><td>The product must not encourage unsafe attempts to catch up.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        A successful product should improve coordination without creating new safety,
+        privacy or reliability problems.
+      </p>
+    </section>
+
+    <section class="section" id="experimentation">
+      <span class="section-number">08</span>
+      <h2>Experimentation</h2>
+      <p class="section-intro">Hypotheses, A/B tests and validation.</p>
+      <p>
+        I would validate the product in stages rather than immediately building the entire
+        experience.
+      </p>
+
+      <h3>Hypothesis 1: Groups need more than individual location sharing</h3>
+      <p><strong>Hypothesis:</strong> People travelling in separate vehicles experience significant coordination overhead even when they share their live locations.</p>
+      <p><strong>Experiment:</strong> Conduct contextual interviews with 8 to 12 people who have recently travelled in multi-vehicle groups.</p>
+      <p>
+        Ask participants to reconstruct a real journey and identify when they needed to
+        communicate, compare routes or regroup.
+      </p>
+      <p><strong>Success signal:</strong> A recurring set of high-friction situations where existing location sharing does not provide enough context to coordinate the group.</p>
+
+      <h3>Hypothesis 2: Relative route awareness reduces interpretation effort</h3>
+      <p><strong>Hypothesis:</strong> Showing relative progress along a route is more useful than showing isolated location pins.</p>
+      <p><strong>Experiment:</strong> Create a clickable prototype with two versions:</p>
+      <ul>
+        <li><strong>Version A:</strong> A map showing participant location pins.</li>
+        <li><strong>Version B:</strong> A map showing participant routes, relative progress, road distance and ETA.</li>
+      </ul>
+      <p>
+        Ask users to complete tasks such as identifying who is ahead, determining whether
+        another vehicle is on the same route and estimating how long it would take to meet.
+      </p>
+      <p><strong>Success metrics:</strong></p>
+      <ul>
+        <li>Time taken to understand group progress.</li>
+        <li>Accuracy in identifying relative positions.</li>
+        <li>Number of incorrect interpretations.</li>
+        <li>User confidence in the information presented.</li>
+      </ul>
+
+      <h3>Hypothesis 3: Meetup recommendations reduce coordination time</h3>
+      <p><strong>Hypothesis:</strong> Suggesting mutually accessible meeting points reduces the time and effort required to regroup.</p>
+      <p><strong>Experiment:</strong> Use a prototype to present participants with different locations and travel conditions. Compare manual meetup selection with a suggested meetup experience.</p>
+      <p><strong>Success metrics:</strong></p>
+      <ul>
+        <li>Time taken to agree on a meetup.</li>
+        <li>Percentage of suggested meetups accepted.</li>
+        <li>Estimated travel-time difference between participants.</li>
+        <li>Perceived fairness and convenience of the suggested location.</li>
+      </ul>
+
+      <h3>Hypothesis 4: Group Journey Mode improves the overall travel experience</h3>
+      <p><strong>Hypothesis:</strong> An integrated group journey experience reduces coordination effort compared with existing Maps workflows.</p>
+      <p><strong>Experiment:</strong> Run a limited, opt-in beta with groups travelling in multiple vehicles. Compare the existing workflow with the Group Journey experience. Randomisation should happen at the group level to avoid participants in the same journey being split between experiences.</p>
+      <p><strong>Measure:</strong></p>
+      <ul>
+        <li>Group Journey Completion Rate.</li>
+        <li>Time to regroup.</li>
+        <li>Frequency of manual coordination.</li>
+        <li>ETA accuracy.</li>
+        <li>Repeat usage.</li>
+      </ul>
+      <p>
+        Manual coordination can be measured through voluntary post-trip surveys or
+        diaries. I would not attempt to inspect private messages or calls.
+      </p>
+
+      <h3>Testing Joyride separately</h3>
+      <p>
+        Joyride should have its own validation track because its value proposition is
+        different. I would test it with individual and group travellers.
+      </p>
+      <p>Key questions:</p>
+      <ul>
+        <li>Do users actively choose a scenic route when given the option?</li>
+        <li>How much additional travel time are they willing to accept?</li>
+        <li>Which route attributes matter most?</li>
+        <li>Do users prefer discovering places along the way or following a scenic road?</li>
+        <li>In group journeys, do participants agree on shared stops?</li>
+      </ul>
+      <p>
+        The feature should remain opt-in, with additional distance and travel time clearly
+        communicated before selection.
+      </p>
+    </section>
+
+    <section class="section" id="risks-reflection">
+      <span class="section-number">09</span>
+      <h2>Risks &amp; Reflection</h2>
+      <p class="section-intro">Technical constraints, privacy, trade-offs and learnings.</p>
+
+      <h3>Product and technical risks</h3>
+      <div class="table-wrap">
+        <table>
+          <caption>Key risks and proposed mitigations</caption>
+          <thead><tr><th scope="col">Risk</th><th scope="col">Why it matters</th><th scope="col">Mitigation</th></tr></thead>
+          <tbody>
+            <tr><td>GPS inaccuracies</td><td>Incorrect positioning can make relative progress misleading.</td><td>Use location freshness indicators, map matching and confidence thresholds.</td></tr>
+            <tr><td>Network interruptions</td><td>Participants may temporarily disappear from the shared map.</td><td>Show last updated location and connection status.</td></tr>
+            <tr><td>Moving-target ETA</td><td>Estimating travel time to another moving vehicle is complex.</td><td>Distinguish ETA to current location from projected rendezvous time.</td></tr>
+            <tr><td>Route differences</td><td>Participants may follow different roads or make independent stops.</td><td>Show route context and avoid misleading ahead/behind labels.</td></tr>
+            <tr><td>Map clutter</td><td>Multiple routes and participant markers can overwhelm the screen.</td><td>Use adaptive visibility and prioritise relevant information.</td></tr>
+            <tr><td>Battery consumption</td><td>Frequent location updates may drain devices.</td><td>Optimise update frequency based on movement and journey context.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Privacy and safety</h3>
+      <h4>Location privacy</h4>
+      <p>
+        Group Journey Mode should use explicit, session-based consent. Participants
+        should know who can see their location, when sharing starts and when it ends.
+        They should be able to leave the session or stop sharing at any time.
+      </p>
+
+      <h4>Driver distraction</h4>
+      <p>
+        The experience must not require drivers to continuously inspect the group map.
+        Important updates should be delivered through voice guidance or simple audio
+        notifications. Detailed interactions should be designed for passengers or
+        stationary use.
+      </p>
+
+      <h4>Unsafe catch-up behaviour</h4>
+      <p>
+        The product should never encourage drivers to speed up or take shortcuts to catch
+        another vehicle. Meetup recommendations should favour safe, accessible locations
+        and communicate uncertainty when estimates are unreliable.
+      </p>
+
+      <h4>AI reliability</h4>
+      <p>
+        Gemini can help users describe their meetup preferences and understand
+        recommendations. However, route feasibility, distance and ETA should be grounded
+        in Maps' routing and location systems. AI-generated recommendations should not
+        override navigation constraints or automatically change a participant's route.
+      </p>
+
+      <h3>Key trade-offs</h3>
+      <ul>
+        <li>
+          <strong>Group coordination versus individual freedom:</strong>
+          A shared journey should not become a shared route mandate. Every participant
+          should retain control over their navigation.
+        </li>
+        <li>
+          <strong>More information versus cognitive overload:</strong>
+          Displaying every vehicle, route, ETA and update simultaneously could make the
+          map difficult to understand. The interface should surface information based on
+          relevance.
+        </li>
+        <li>
+          <strong>Automation versus user control:</strong>
+          Automatic meetup suggestions are useful, but automatic route changes could
+          frustrate users. The product should recommend and explain, not decide on behalf
+          of the group.
+        </li>
+        <li>
+          <strong>Rich location updates versus privacy and battery:</strong>
+          More frequent updates improve visibility but increase battery and data usage.
+          Update frequency should balance usefulness, reliability and device impact.
+        </li>
+      </ul>
+
+      <h3>Reflection</h3>
+      <p>
+        The interesting part of this opportunity is that it challenges the assumption
+        that navigation is always an individual activity.
+      </p>
+      <p>
+        People often travel together while maintaining separate routes, vehicles and
+        constraints. Existing navigation tools are very good at helping each individual
+        reach a destination, but the coordination between those individuals can still
+        be fragmented.
+      </p>
+      <p>
+        Group Journey Mode builds on capabilities that Google Maps already has and
+        connects them into a more cohesive experience.
+      </p>
+      <p>
+        The strongest product opportunity is not simply displaying multiple location
+        pins on a map. It is helping people understand the relationship between their
+        journeys and make better decisions together.
+      </p>
+      <p>
+        I would start with shared route awareness and simple regrouping, validate whether
+        those capabilities meaningfully reduce coordination effort, and then expand into
+        intelligent meetup recommendations and more exploratory route preferences.
+      </p>
+      <div class="thesis">
+        The larger vision is to make Google Maps useful not only for deciding where to go
+        and how to get there, but also for helping people experience the journey together.
+      </div>
+    </section>
+
+    <section class="section" id="references">
+      <span class="section-number">Sources</span>
+      <h2>Research References</h2>
+      <p>
+        The following sources support the existing-product analysis and the external
+        research signals used in this case study. Community discussions are treated as
+        qualitative signals, not representative research.
+      </p>
+      <ol class="references">
+        <li>
+          Google official documentation:
+          <a href="https://support.google.com/maps/answer/15437054">Location Sharing and Share Trip Progress</a>.
+        </li>
+        <li>
+          Google official documentation:
+          <a href="https://support.google.com/maps/answer/3273406">Navigation and Search Along Route</a>.
+        </li>
+        <li>
+          Google announcement:
+          <a href="https://blog.google/products-and-platforms/products/maps/ask-maps-immersive-navigation/">
+            Ask Maps and Immersive Navigation
+          </a>.
+        </li>
+        <li>
+          Google Maps Community discussion:
+          <a href="https://support.google.com/maps/thread/390982252/group-travel-navigation-is-difficult-with-multiple-vehicles">
+            Group travel navigation is difficult with multiple vehicles
+          </a>.
+        </li>
+        <li>
+          Google Maps Community feature request:
+          <a href="https://support.google.com/maps/thread/440491068/i-would-like-a-group-trip-convoy-mode-in-google-maps-users-could-create-a-trip-invite-multiple-veh">
+            Group Trip / Convoy Mode
+          </a>.
+        </li>
+        <li>
+          Google Maps Platform:
+          <a href="https://developers.google.com/maps/billing-and-pricing/overview">Pricing overview</a>.
+        </li>
+        <li>
+          Google Ads Help:
+          <a href="https://support.google.com/google-ads/answer/16388390">Advertising in Maps</a>.
+        </li>
+      </ol>
+    </section>
+
+    <footer>
+      <p>
+        <strong>Portfolio positioning note:</strong>
+        This is an independent product proposal, not a claim that the feature has been
+        built or validated. The personal journey observation and public product research
+        establish the starting point. The interviews, prototype tests and beta experiments
+        are proposed validation steps, not completed research. That distinction makes the
+        case study more credible.
+      </p>
+      <p><a href="#top">Back to top</a></p>
+    </footer>
+  </article>
+</main>
+</body>
+</html>

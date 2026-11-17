@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A research-grounded nine-part product teardown of Google Gemini for a Google APM portfolio.">
+  <meta name="author" content="Product teardown working document">
+  <meta name="date" content="2026-11-14">
+  <title>Google Gemini Product Teardown | Beyond Intelligence</title>
+  <style>
+    :root {
+      --ink: #18212f;
+      --muted: #5d6878;
+      --line: #dce2ea;
+      --paper: #ffffff;
+      --wash: #f4f6f9;
+      --blue: #2563eb;
+      --blue-soft: #eaf1ff;
+      --green: #16794b;
+      --green-soft: #e8f6ee;
+      --amber: #946200;
+      --amber-soft: #fff5d9;
+      --red: #a33232;
+      --red-soft: #fff0ef;
+      --violet: #6941c6;
+      --violet-soft: #f2edff;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(20, 32, 52, .07);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: #eef1f5;
+      color: var(--ink);
+      font: 16px/1.68 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    a { color: #174ea6; text-decoration-thickness: 1px; text-underline-offset: 3px; overflow-wrap: anywhere; }
+    a:hover { color: #0b3278; }
+    .page { max-width: 1120px; margin: 0 auto; background: var(--paper); min-height: 100vh; box-shadow: var(--shadow); }
+    .hero {
+      padding: 72px clamp(24px, 7vw, 82px) 58px;
+      color: #fff;
+      background: radial-gradient(circle at 85% 20%, rgba(110, 164, 255, .35), transparent 30%),
+                  linear-gradient(135deg, #101b35 0%, #172b54 58%, #273d70 100%);
+    }
+    .eyebrow { margin: 0 0 18px; color: #b9cdfb; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; font-weight: 750; }
+    h1 { margin: 0; max-width: 850px; font-size: clamp(38px, 6vw, 66px); line-height: 1.04; letter-spacing: -.045em; }
+    .hero .subtitle { max-width: 720px; margin: 22px 0 0; color: #e2e9f8; font-size: clamp(18px, 2.2vw, 23px); line-height: 1.45; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 34px; color: #c9d6ef; font-size: 13px; }
+    .hero-meta span { display: inline-flex; align-items: center; gap: 8px; }
+    .hero-meta span::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #8fb2ff; }
+    .content { display: grid; grid-template-columns: 245px minmax(0, 1fr); gap: 48px; padding: 48px clamp(22px, 5vw, 62px) 90px; }
+    nav { align-self: start; position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow: auto; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: #fbfcfe; }
+    nav h2 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
+    nav ol { margin: 0; padding-left: 20px; }
+    nav li { padding: 4px 0; font-size: 13px; line-height: 1.4; }
+    nav a { color: #34445c; text-decoration: none; }
+    nav a:hover { color: var(--blue); text-decoration: underline; }
+    main { min-width: 0; }
+    section { margin: 0 0 62px; scroll-margin-top: 24px; }
+    h2.section-title { margin: 0 0 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); font-size: clamp(27px, 3.4vw, 37px); line-height: 1.2; letter-spacing: -.03em; }
+    .section-kicker { color: var(--blue); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; }
+    h3 { margin: 32px 0 10px; font-size: 22px; line-height: 1.3; letter-spacing: -.018em; }
+    h4 { margin: 22px 0 8px; font-size: 17px; line-height: 1.35; }
+    p { margin: 10px 0 14px; }
+    ul, ol { padding-left: 23px; }
+    li { margin: 5px 0; }
+    .lead { color: #39475a; font-size: 18px; line-height: 1.65; }
+    .muted { color: var(--muted); }
+    .small { font-size: 13px; color: var(--muted); }
+    .callout, .card { margin: 20px 0; padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; }
+    .callout.blue { background: var(--blue-soft); border-color: #cbdcff; }
+    .callout.green { background: var(--green-soft); border-color: #c9ead6; }
+    .callout.amber { background: var(--amber-soft); border-color: #f0dfaa; }
+    .callout.red { background: var(--red-soft); border-color: #f3ceca; }
+    .callout.violet { background: var(--violet-soft); border-color: #ded2ff; }
+    .callout strong:first-child { display: block; margin-bottom: 5px; }
+    .tag { display: inline-block; padding: 3px 9px; margin: 2px 5px 2px 0; border-radius: 999px; background: var(--wash); color: #405069; font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .tag.high { background: var(--red-soft); color: var(--red); }
+    .tag.medium { background: var(--amber-soft); color: var(--amber); }
+    .tag.low { background: var(--green-soft); color: var(--green); }
+    table { width: 100%; border-collapse: collapse; margin: 18px 0 24px; font-size: 14px; line-height: 1.5; }
+    th, td { padding: 12px 13px; border: 1px solid var(--line); vertical-align: top; text-align: left; }
+    th { background: #f1f4f8; font-weight: 750; color: #26354a; }
+    tr:nth-child(even) td { background: #fbfcfe; }
+    .metric { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+    .metric > div { padding: 17px; border: 1px solid var(--line); border-radius: 12px; background: #fbfcff; }
+    .metric strong { display: block; font-size: 23px; line-height: 1.2; }
+    .metric span { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; }
+    .journey { margin: 18px 0; padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: #fcfdff; }
+    .journey ol { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; list-style: none; padding: 0; counter-reset: step; }
+    .journey li { position: relative; min-height: 100px; padding: 30px 12px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; font-size: 13px; }
+    .journey li::before { counter-increment: step; content: counter(step); position: absolute; top: 9px; left: 12px; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; background: var(--blue-soft); color: var(--blue); font-size: 11px; font-weight: 800; }
+    .score { white-space: nowrap; font-weight: 800; }
+    .bar { height: 8px; width: 100%; margin-top: 7px; border-radius: 20px; background: #e9edf3; overflow: hidden; }
+    .bar > span { display: block; height: 100%; border-radius: inherit; background: #5a83d8; }
+    .source-list li { margin: 10px 0; }
+    .footer { padding: 28px clamp(22px, 5vw, 62px); border-top: 1px solid var(--line); background: #f8fafc; color: var(--muted); font-size: 12px; }
+    code { padding: 2px 5px; border-radius: 5px; background: #f0f2f6; font-size: .9em; }
+    .no-break { break-inside: avoid; }
+    @media (max-width: 850px) {
+      .content { display: block; }
+      nav { position: static; max-height: none; margin-bottom: 40px; }
+      nav ol { columns: 2; }
+    }
+    @media (max-width: 560px) {
+      .hero { padding-top: 48px; }
+      .metric { grid-template-columns: 1fr; }
+      .journey ol { grid-template-columns: repeat(2, 1fr); }
+      nav ol { columns: 1; }
+      table { display: block; overflow-x: auto; }
+    }
+    @media print {
+      body { background: #fff; font-size: 11pt; }
+      .page { box-shadow: none; max-width: none; }
+      .content { display: block; padding: 28px; }
+      nav { position: static; max-height: none; margin-bottom: 28px; }
+      nav ol { columns: 3; }
+      .hero { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      a { color: inherit; }
+      section { break-inside: auto; }
+      h2, h3, h4 { break-after: avoid; }
+      table, .callout, .card, .journey { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header class="hero">
+    <p class="eyebrow">Google APM Portfolio · Product Teardown</p>
+    <h1>Google Gemini</h1>
+    <p class="subtitle">Beyond intelligence: building an AI assistant users can trust</p>
+    <div class="hero-meta">
+      <span>Nine-part product teardown</span>
+      <span>Research cut-off: 14 November 2026</span>
+      <span>Primary market lens: India</span>
+      <span>Prepared as a portfolio-agent handoff</span>
+    </div>
+  </header>
+
+  <div class="content">
+    <nav aria-label="Table of contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#executive-summary">Executive summary</a></li>
+        <li><a href="#product-context">1. Product context</a></li>
+        <li><a href="#market">2. Market & competition</a></li>
+        <li><a href="#segments">3. User segmentation</a></li>
+        <li><a href="#journeys">4. Core user journeys</a></li>
+        <li><a href="#architecture">5. Product architecture & experience</a></li>
+        <li><a href="#evaluation">6. Product evaluation</a></li>
+        <li><a href="#growth">7. Growth & monetisation</a></li>
+        <li><a href="#metrics">8. Metrics & experimentation</a></li>
+        <li><a href="#recommendations">9. Strategic recommendations</a></li>
+        <li><a href="#conclusion">Conclusion</a></li>
+        <li><a href="#evidence">Evidence & references</a></li>
+        <li><a href="#agent-handoff">Portfolio-agent handoff notes</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="executive-summary">
+        <p class="section-kicker">Overview</p>
+        <h2 class="section-title">Executive summary</h2>
+        <p class="lead">Gemini's opportunity is larger than becoming a better chatbot. Google can combine frontier AI models, multimodal interaction, personal context and its ecosystem of services to help people complete tasks across everyday digital life.</p>
+        <div class="callout blue">
+          <strong>Central thesis</strong>
+          Gemini's next product challenge is to close the gap between what the assistant says it can do and what it can reliably do in the user's current account, device, integration and interaction context.
+        </div>
+        <p>This teardown examines Gemini as a consumer AI assistant and Google ecosystem entry point. It uses a nine-part product framework: product context; market and competition; user segmentation; core journeys; product architecture and experience; evaluation; growth and monetisation; metrics and experimentation; and strategic recommendations.</p>
+        <h3>The central product observation</h3>
+        <p>The strongest first-hand critique comes from a user-tested photo-retrieval interaction. In the supplied screenshots, Gemini initially described photo access as available through assistant tools when asked whether it could access the user's photos. When asked to locate a screenshot containing an Instagram ID, it failed to find it. When asked to locate the last camera photo, it said it could not access the gallery or camera roll. It then suggested enabling Photos or Storage permissions in Android app settings. The supplied Android App Info screenshot showed <strong>“No permissions requested”</strong> for Gemini.</p>
+        <p>The screenshots therefore illustrate a mismatch between capability language, actual task availability and troubleshooting guidance. They do not, by themselves, prove that Gemini never supports photo retrieval. Google's current product documentation describes Google Photos access through Connected Apps and Personal Intelligence, with eligibility and setup requirements. The key product failure to investigate is whether Gemini identifies the correct access pathway and accurately explains the constraints in the user's current context.</p>
+        <div class="callout amber">
+          <strong>Evidence discipline</strong>
+          Treat the screenshots as a documented individual experience, not proof of a universal defect. The exact account eligibility, Personal Intelligence opt-in state, Google Photos connection state and Gemini interaction mode were not established by the screenshots. These should be verified in a repeatable test before making a broad claim.
+        </div>
+        <h3>Key findings at a glance</h3>
+        <table>
+          <thead><tr><th>Theme</th><th>Finding</th><th>Product implication</th></tr></thead>
+          <tbody>
+            <tr><td>Strategic position</td><td>Google can combine AI with Search, Android, Workspace, Photos, YouTube and Maps.</td><td>Differentiate through useful, consent-based ecosystem context and execution.</td></tr>
+            <tr><td>User experience</td><td>Users may not understand which capabilities are available in a particular mode or account.</td><td>Make capability availability and prerequisites visible at the moment of need.</td></tr>
+            <tr><td>Trust</td><td>Confident but inaccurate explanations about access can damage trust.</td><td>Measure capability accuracy, not only answer quality.</td></tr>
+            <tr><td>Growth</td><td>Google has strong distribution and a growing portfolio of AI experiences.</td><td>Convert reach into repeated successful outcomes.</td></tr>
+            <tr><td>North Star</td><td>Prompt volume is an incomplete proxy for user value.</td><td>Measure weekly users completing meaningful goals successfully.</td></tr>
+          </tbody>
+        </table>
+        <div class="metric">
+          <div><strong>9</strong><span>Product-analysis sections</span></div>
+          <div><strong>5</strong><span>Proposed experiments</span></div>
+          <div><strong>4</strong><span>Strategic recommendations</span></div>
+        </div>
+      </section>
+
+      <section id="product-context">
+        <p class="section-kicker">01 · Strategy</p>
+        <h2 class="section-title">1. Product context</h2>
+        <h3>1.1 What is Gemini?</h3>
+        <p>Gemini is Google's family of AI models and its consumer-facing AI assistant experience. The Gemini app gives users a conversational interface for asking questions, researching, creating content, working with files and images, using voice, and accessing supported connected services. Gemini also appears in other Google products and developer and enterprise offerings.</p>
+        <p>For this teardown, the primary product under analysis is the <strong>Gemini consumer app</strong>, including its web and mobile experiences, multimodal interaction, personalisation and Connected Apps. Gemini models, Workspace integrations, developer APIs and enterprise products are considered part of the wider ecosystem rather than treated as identical products.</p>
+        <h3>1.2 Product vision</h3>
+        <p><strong>Product vision (analytical synthesis):</strong> make Google's AI assistant a helpful, multimodal and increasingly personal layer that helps people understand information and get things done across their digital lives.</p>
+        <p>This is a synthesis of Google's product direction, not a verbatim official mission statement. Google's public positioning emphasises a personal, proactive assistant and increasingly connected experiences across Google apps.</p>
+        <h3>1.3 Positioning</h3>
+        <table>
+          <thead><tr><th>Dimension</th><th>Gemini positioning</th></tr></thead>
+          <tbody>
+            <tr><td>Core promise</td><td>AI assistance for learning, work, creativity, research and everyday tasks.</td></tr>
+            <tr><td>Interaction model</td><td>Text, voice, images, files and other supported multimodal inputs.</td></tr>
+            <tr><td>Distinctive opportunity</td><td>Google's ecosystem, distribution, services and user-authorised personal context.</td></tr>
+            <tr><td>Value proposition</td><td>Move from asking questions to completing useful tasks with relevant context.</td></tr>
+            <tr><td>Business model</td><td>Freemium consumer access, paid AI plans, enterprise offerings and developer services.</td></tr>
+          </tbody>
+        </table>
+        <h3>1.4 Strategic objectives</h3>
+        <ol>
+          <li><strong>Drive AI adoption:</strong> make Gemini accessible through standalone apps and Google's existing surfaces.</li>
+          <li><strong>Increase usefulness:</strong> support more complex research, creation and execution workflows.</li>
+          <li><strong>Leverage ecosystem context:</strong> use connected Google services when the user explicitly authorises access.</li>
+          <li><strong>Build habitual usage:</strong> create repeat value across everyday tasks rather than relying on novelty.</li>
+          <li><strong>Monetise advanced value:</strong> convert power users and organisations through higher limits, advanced capabilities and bundled services.</li>
+        </ol>
+        <h3>1.5 Strategic tension</h3>
+        <div class="callout violet">
+          <strong>The opportunity and the risk are linked</strong>
+          The more Gemini promises to act as a personal assistant, the more important it becomes to communicate exactly what it can access, what it can do, what it has done and what still requires user approval.
+        </div>
+      </section>
+
+      <section id="market">
+        <p class="section-kicker">02 · Competitive landscape</p>
+        <h2 class="section-title">2. Market & competition</h2>
+        <h3>2.1 Market context</h3>
+        <p>General-purpose AI assistants compete across several overlapping jobs: information discovery, reasoning, writing, coding, research, content creation, personal productivity and multi-step task execution. The market is moving beyond standalone chat interfaces toward assistants embedded in applications, connected to user context and able to use tools.</p>
+        <p>Gemini competes directly with ChatGPT, Claude and Perplexity, while also facing competition from AI features embedded in operating systems, productivity suites, search engines and specialist applications.</p>
+        <h3>2.2 Competitive comparison</h3>
+        <p class="small">This is a qualitative product-positioning comparison, not a benchmark of model quality. Features and availability change frequently and may differ by plan, region and platform.</p>
+        <table>
+          <thead><tr><th>Product</th><th>Primary product strength</th><th>Strategic advantage</th><th>Potential weakness / watch-out</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Google Gemini</strong></td><td>Multimodal assistant, Google-service context, research and creation tools.</td><td>Google distribution and breadth of first-party services.</td><td>Capability and integration complexity can make availability and setup hard to understand.</td></tr>
+            <tr><td><strong>ChatGPT</strong></td><td>Broad assistant experience spanning search, analysis, writing, voice, apps and agentic workflows.</td><td>Strong standalone assistant identity and broad tool ecosystem.</td><td>Connected tools and advanced capabilities can also create complexity and plan-dependent limits.</td></tr>
+            <tr><td><strong>Claude</strong></td><td>Writing, reasoning, coding and work-oriented workflows.</td><td>Strong positioning around focused knowledge work and developer workflows.</td><td>Less direct ownership of a mass-market consumer device and services ecosystem than Google.</td></tr>
+            <tr><td><strong>Perplexity</strong></td><td>Research and answer discovery with source-oriented responses.</td><td>Clear search/research proposition and emphasis on citations.</td><td>Less naturally positioned as a broad personal assistant across a user's everyday apps.</td></tr>
+          </tbody>
+        </table>
+        <h3>2.3 Where Gemini can differentiate</h3>
+        <ul>
+          <li><strong>Distribution:</strong> Android, Search, Chrome and Workspace provide many potential entry points.</li>
+          <li><strong>First-party ecosystem:</strong> Google Photos, Gmail, Calendar, Drive, Maps, YouTube and other services can provide relevant context when supported and authorised.</li>
+          <li><strong>Multimodality:</strong> voice, images, files and other input/output formats can support more natural workflows.</li>
+          <li><strong>Research and creation:</strong> Gemini's broader product family includes experiences such as Deep Research, Canvas, Gems and generative media tools, subject to current plan and regional availability.</li>
+          <li><strong>Infrastructure and model portfolio:</strong> Google's model and cloud infrastructure investment supports consumer, developer and enterprise offerings.</li>
+        </ul>
+        <h3>2.4 Competitive risk</h3>
+        <p>Competitors are also building connected-app experiences, research workflows and agents. Google's ecosystem is an advantage only if the user experience is more seamless and dependable. A large integration catalogue is not a moat if users cannot tell which integration is active or how to recover when it fails.</p>
+        <div class="callout blue">
+          <strong>Competitive thesis</strong>
+          Gemini should not compete only on model intelligence or the number of available integrations. It should compete on how reliably it turns user intent into completed outcomes across Google's ecosystem.
+        </div>
+      </section>
+
+      <section id="segments">
+        <p class="section-kicker">03 · Users</p>
+        <h2 class="section-title">3. User segmentation</h2>
+        <h3>3.1 Core user segments</h3>
+        <table>
+          <thead><tr><th>Segment</th><th>Primary jobs to be done</th><th>What creates value</th><th>Likely friction</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Students and learners</strong></td><td>Understand concepts, study, summarise material and practise.</td><td>Clear explanations, tutoring, file understanding and research support.</td><td>Incorrect answers, over-reliance and unclear source quality.</td></tr>
+            <tr><td><strong>Knowledge workers</strong></td><td>Draft, summarise, plan, analyse and prepare communications.</td><td>Workspace integration, document context and time savings.</td><td>Permission setup, workflow interruptions and inaccurate outputs.</td></tr>
+            <tr><td><strong>Creators</strong></td><td>Brainstorm, write, edit and generate visual or audiovisual content.</td><td>Multimodal input, generation tools and iteration.</td><td>Usage limits, inconsistent outputs and tool fragmentation.</td></tr>
+            <tr><td><strong>Developers</strong></td><td>Understand code, debug, prototype and use model APIs.</td><td>Reasoning, coding support, context windows and developer tooling.</td><td>Code reliability, context handling and model/API cost.</td></tr>
+            <tr><td><strong>Everyday personal-assistant users</strong></td><td>Find information, plan activities and retrieve personal context.</td><td>Voice, memory, connected apps and useful task execution.</td><td>Trust, privacy, unclear capabilities and failed integrations.</td></tr>
+            <tr><td><strong>Enterprise users</strong></td><td>Search organisational knowledge, automate workflows and improve productivity.</td><td>Governance, security, administration and integration with work systems.</td><td>Access controls, compliance, data boundaries and reliability.</td></tr>
+          </tbody>
+        </table>
+        <h3>3.2 High-value target segment for this teardown</h3>
+        <p>The most strategically interesting segment is the <strong>everyday personal-assistant user</strong>. This user expects Gemini to understand natural-language requests and coordinate actions across services. Their experience exposes the product's central challenge: the assistant must know which data sources and tools are available, explain limitations accurately and complete the task with appropriate consent.</p>
+        <h3>3.3 User needs and expectations</h3>
+        <ul>
+          <li>“Understand what I mean without requiring exact product terminology.”</li>
+          <li>“Know which of my connected services you can use.”</li>
+          <li>“Tell me clearly when you cannot access something.”</li>
+          <li>“Help me set up the missing integration without sending me through irrelevant settings.”</li>
+          <li>“Do not claim that an action succeeded unless it actually succeeded.”</li>
+          <li>“Let me control what personal information is connected and used.”</li>
+        </ul>
+      </section>
+
+      <section id="journeys">
+        <p class="section-kicker">04 · User experience</p>
+        <h2 class="section-title">4. Core user journeys</h2>
+        <p>Gemini supports a range of journeys. The following five are useful for evaluating the product from discovery through execution.</p>
+        <h3>4.1 Discovery and onboarding</h3>
+        <div class="journey"><ol>
+          <li><strong>Discover</strong><br>Find Gemini through Search, Android, an app store, Workspace or word of mouth.</li>
+          <li><strong>Enter</strong><br>Open the app or web experience and sign in where required.</li>
+          <li><strong>Understand</strong><br>Learn what Gemini can do and which features are available.</li>
+          <li><strong>Activate</strong><br>Complete a first useful task and optionally configure personalisation.</li>
+        </ol></div>
+        <p><strong>Product question:</strong> Does onboarding help a new user reach a successful first outcome, or does it focus too heavily on feature discovery?</p>
+        <h3>4.2 Prompting and everyday assistance</h3>
+        <div class="journey"><ol>
+          <li><strong>Express intent</strong><br>User asks a question or describes a task in natural language.</li>
+          <li><strong>Interpret</strong><br>Gemini identifies intent, context and any missing details.</li>
+          <li><strong>Respond</strong><br>Gemini answers, asks a clarification or invokes an available capability.</li>
+          <li><strong>Evaluate</strong><br>User accepts, corrects, refines or abandons the response.</li>
+        </ol></div>
+        <p><strong>Product question:</strong> Does Gemini make uncertainty visible and ask for clarification when the request is ambiguous?</p>
+        <h3>4.3 Research and information discovery</h3>
+        <div class="journey"><ol>
+          <li><strong>Define topic</strong><br>User describes a question or research goal.</li>
+          <li><strong>Gather</strong><br>Gemini uses available information sources and research capabilities.</li>
+          <li><strong>Synthesise</strong><br>It organises findings and communicates evidence and uncertainty.</li>
+          <li><strong>Verify</strong><br>User checks sources, asks follow-ups or exports the result.</li>
+        </ol></div>
+        <p><strong>Product question:</strong> Can users distinguish sourced facts from generated synthesis, assumptions and unsupported claims?</p>
+        <h3>4.4 Creation</h3>
+        <div class="journey"><ol>
+          <li><strong>Describe output</strong><br>User specifies the content or media they want.</li>
+          <li><strong>Generate</strong><br>Gemini creates a draft, image or other supported output.</li>
+          <li><strong>Iterate</strong><br>User refines the result with additional instructions.</li>
+          <li><strong>Use or export</strong><br>User copies, downloads or moves the output into another workflow.</li>
+        </ol></div>
+        <p><strong>Product question:</strong> Does Gemini preserve the user's intent and context across multiple iterations?</p>
+        <h3>4.5 Connected-app task execution</h3>
+        <div class="journey"><ol>
+          <li><strong>Request</strong><br>User asks Gemini to retrieve information or act on connected data.</li>
+          <li><strong>Check access</strong><br>Gemini checks the relevant connected app, permissions, eligibility and mode.</li>
+          <li><strong>Execute</strong><br>Gemini retrieves information or performs an authorised action.</li>
+          <li><strong>Confirm</strong><br>Gemini reports what happened, what failed and what remains to be done.</li>
+        </ol></div>
+        <div class="callout red">
+          <strong>Observed journey failure: personal photo retrieval</strong>
+          In the supplied screenshots, the user asked whether Gemini could access their photos, requested a screenshot containing an Instagram ID, then asked for the last camera photo and a teaser image of diyas. Gemini's responses shifted between claiming access through assistant tools, saying it could not access the gallery or find the image in indexed data, and recommending Android Photos/Storage permissions. The Android App Info screenshot showed no permissions requested. This is a useful case study of inconsistent capability communication and weak recovery guidance.
+        </div>
+        <h3>4.6 How the photo journey should work</h3>
+        <ol>
+          <li>Recognise that the request concerns the user's personal Google Photos library, not necessarily unrestricted local device storage.</li>
+          <li>Check whether Personal Intelligence / Google Photos is available for the user's account and region.</li>
+          <li>Check whether Google Photos is connected in Gemini's Connected Apps settings.</li>
+          <li>Explain any Google Photos setup prerequisites, such as required Photos settings, where applicable.</li>
+          <li>Check whether the current Gemini surface or interaction mode supports the requested action.</li>
+          <li>If unavailable, state the exact limitation and give the correct next step. Do not invent an Android permission toggle.</li>
+          <li>If available, perform the search and clearly report the result, including when no match is found.</li>
+        </ol>
+        <p class="small">Important: Google documents Google Photos connection through Personal Intelligence / Connected Apps, and its help material lists additional Google Photos setup requirements for eligible users. Availability can vary. The user's screenshot alone does not establish whether the feature was enabled or whether the session was eligible.</p>
+      </section>
+
+      <section id="architecture">
+        <p class="section-kicker">05 · System & experience</p>
+        <h2 class="section-title">5. Product architecture & experience</h2>
+        <h3>5.1 Product architecture: what can be responsibly described</h3>
+        <p>Gemini is a layered AI product experience. Public product documentation supports describing the user-visible layers below. This is a conceptual product architecture, not a claim about Google's private model-serving implementation.</p>
+        <table>
+          <thead><tr><th>Layer</th><th>Responsibility</th><th>User-facing examples</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Interaction layer</strong></td><td>Accept user intent and present responses.</td><td>Text chat, voice, Live, image and file inputs.</td></tr>
+            <tr><td><strong>Model layer</strong></td><td>Interpret prompts and generate or reason over outputs.</td><td>Model selection and plan-dependent model access.</td></tr>
+            <tr><td><strong>Context layer</strong></td><td>Use conversation context, custom instructions and authorised personal context where enabled.</td><td>Memory, Personal Intelligence and connected Google apps.</td></tr>
+            <tr><td><strong>Tool / integration layer</strong></td><td>Connect to supported services and execute supported operations.</td><td>Gmail, Google Photos, Calendar, Maps, YouTube and other Connected Apps, depending on availability.</td></tr>
+            <tr><td><strong>Output layer</strong></td><td>Present answers, generated content, results and action status.</td><td>Text, citations, media, files and task confirmations.</td></tr>
+            <tr><td><strong>Trust and control layer</strong></td><td>Manage consent, account eligibility, privacy and safety boundaries.</td><td>Connected Apps settings, Personal Intelligence controls and activity settings.</td></tr>
+          </tbody>
+        </table>
+        <h3>5.2 Multimodality</h3>
+        <p>Gemini's multimodal proposition lets users interact through more than text. Depending on the experience and availability, users can use voice, images, files and generative media. This makes the assistant relevant to tasks that are difficult to express as text alone.</p>
+        <p><strong>Product challenge:</strong> multimodal breadth increases the number of capability combinations. A feature may be supported in one surface but not another, or require a different integration. The interface should make those differences understandable rather than leaving users to discover them through failure.</p>
+        <h3>5.3 Memory and Personal Intelligence</h3>
+        <p>Gemini's personalisation experiences should be described precisely. Google's Personal Intelligence documentation describes connecting supported Google apps, including Google Photos in eligible countries, along with other services such as Gmail / Google Workspace, Search services and YouTube. Users choose which apps to connect and can manage those connections. Personal Intelligence is subject to eligibility, rollout and product-surface limitations.</p>
+        <p>Personal Intelligence is not equivalent to granting Gemini unrestricted access to every file on a phone. In particular, access to a Google Photos library through a connected Google account is conceptually different from Android's operating-system permission to browse local media files.</p>
+        <h3>5.4 Connected Apps and integrations</h3>
+        <p>Google's Connected Apps feature lets Gemini use supported applications and services for information retrieval and actions. The available apps and supported actions vary by location, language, device, account type and Gemini experience. Users can review the available apps and manage connections in settings.</p>
+        <div class="callout blue">
+          <strong>Correct setup pathway for the photo-access critique</strong>
+          For eligible accounts, the relevant product pathway is Gemini → profile picture / settings → Personal Intelligence → Connected Apps → Google Photos, followed by any required on-screen setup. Google also documents a Connected Apps route when Personal Intelligence is available. The exact labels and availability may vary by app version and account. Do not direct users to Android App Info → Permissions → Photos/Storage unless the device actually exposes a relevant permission for that app and task.
+        </div>
+        <h3>5.5 Agentic capabilities</h3>
+        <p>Gemini is moving from answer generation toward tool use and multi-step task execution. The product challenge is to preserve user control while coordinating multiple services. A trustworthy agent should expose what it plans to do, request approval for consequential actions, report execution status and provide a useful recovery path when a step fails.</p>
+        <h3>5.6 Experience principles that should govern the architecture</h3>
+        <ul>
+          <li><strong>Capability truthfulness:</strong> never imply a tool is available before checking it.</li>
+          <li><strong>Consent clarity:</strong> make data access explicit and revocable.</li>
+          <li><strong>Mode awareness:</strong> explain when a task is unavailable in the current surface or mode.</li>
+          <li><strong>Execution transparency:</strong> distinguish intention, attempt, success and failure.</li>
+          <li><strong>Recoverability:</strong> offer a relevant next step instead of repeating generic apologies.</li>
+        </ul>
+      </section>
+
+      <section id="evaluation">
+        <p class="section-kicker">06 · Diagnosis</p>
+        <h2 class="section-title">6. Product evaluation</h2>
+        <h3>6.1 Product strengths</h3>
+        <table>
+          <thead><tr><th>Strength</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Ecosystem opportunity</strong></td><td>Google services can provide context and action surfaces that a standalone assistant would need to build or integrate separately.</td></tr>
+            <tr><td><strong>Broad AI capability set</strong></td><td>Research, reasoning, writing, coding and creation support a wide range of user needs.</td></tr>
+            <tr><td><strong>Multimodal interaction</strong></td><td>Voice, images and files support more natural and flexible interactions.</td></tr>
+            <tr><td><strong>Distribution</strong></td><td>Google's existing consumer products offer multiple routes to discovery and adoption.</td></tr>
+            <tr><td><strong>Personalisation potential</strong></td><td>Connected apps and user-controlled context can make responses more relevant.</td></tr>
+            <tr><td><strong>Portfolio breadth</strong></td><td>Standalone assistant, Workspace, developer and enterprise experiences support multiple use cases.</td></tr>
+          </tbody>
+        </table>
+        <h3>6.2 Product weaknesses and friction points</h3>
+        <table>
+          <thead><tr><th>Issue</th><th>Observed / hypothesised manifestation</th><th>User impact</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Capability-trust gap</strong></td><td>Assistant describes a capability as available before establishing whether it is enabled or supported in the current context.</td><td>Confusion, failed tasks and reduced confidence.</td></tr>
+            <tr><td><strong>Integration discoverability</strong></td><td>Users may not know which app to connect, where to connect it or what prerequisites apply.</td><td>Onboarding friction and low integration adoption.</td></tr>
+            <tr><td><strong>Weak failure diagnosis</strong></td><td>Generic or inaccurate recovery guidance does not identify whether the problem is access, eligibility, mode or retrieval.</td><td>Repeated attempts and abandonment.</td></tr>
+            <tr><td><strong>Cross-surface inconsistency</strong></td><td>Capabilities differ between mobile, web, voice and other Gemini experiences.</td><td>Unpredictable mental model.</td></tr>
+            <tr><td><strong>Uncertainty communication</strong></td><td>Fluent answers may sound more certain than the available evidence justifies.</td><td>Trust and decision-quality risk.</td></tr>
+          </tbody>
+        </table>
+        <h3>6.3 Five critical product critiques</h3>
+        <h4>Critique 1 — Capability claims are not always grounded in current availability</h4>
+        <p>An assistant should distinguish between a capability that exists somewhere in the product, one that is available to this user, one that is supported in this mode and one that is actually enabled. Conflating these states creates a capability-trust gap.</p>
+        <h4>Critique 2 — Integration setup is not sufficiently contextual</h4>
+        <p>Users should not need to understand Google's product taxonomy before completing a task. When an integration is missing, Gemini should explain the exact dependency and provide the relevant setup path.</p>
+        <h4>Critique 3 — Failure messages do not always diagnose the cause</h4>
+        <p>“I couldn't find it” is not enough when the underlying cause could be a disconnected app, missing eligibility, unsupported mode, incomplete indexing or a genuinely absent item. The product should distinguish these conditions.</p>
+        <h4>Critique 4 — Similar assistant surfaces can create inconsistent expectations</h4>
+        <p>Users may reasonably expect the same assistant to have the same capabilities across voice and text. If that is not true, the product should communicate the difference before the user invests effort in a task.</p>
+        <h4>Critique 5 — Confidence and execution status need clearer separation</h4>
+        <p>A generated statement that Gemini “will look” or “has checked” should correspond to a real action or search. The product should clearly distinguish what it inferred, what it attempted, what it retrieved and what it successfully completed.</p>
+        <h3>6.4 Qualitative scorecard</h3>
+        <p class="small">These are portfolio-analysis judgements, not measured user ratings or Google's internal performance scores. Scores should be validated through usability testing and product data.</p>
+        <table>
+          <thead><tr><th>Dimension</th><th>Analytical score</th><th>Rationale</th></tr></thead>
+          <tbody>
+            <tr><td>Strategic vision</td><td class="score">5 / 5</td><td>Strong opportunity to become a personal AI layer across services.</td></tr>
+            <tr><td>Core AI experience</td><td class="score">4 / 5</td><td>Broad capability set and multimodal interaction.</td></tr>
+            <tr><td>Ecosystem potential</td><td class="score">5 / 5</td><td>Large first-party service footprint.</td></tr>
+            <tr><td>Journey consistency</td><td class="score">3 / 5</td><td>Potential variation across modes, accounts and platforms.</td></tr>
+            <tr><td>Integration discoverability</td><td class="score">2 / 5</td><td>Observed setup guidance was confusing in the photo case.</td></tr>
+            <tr><td>Capability transparency</td><td class="score">2 / 5</td><td>Observed mismatch between claimed and available access.</td></tr>
+            <tr><td>Task reliability</td><td class="score">3 / 5</td><td>Requires systematic testing across task types and surfaces.</td></tr>
+            <tr><td>Personalisation potential</td><td class="score">5 / 5</td><td>Strong opportunity, subject to consent and trust.</td></tr>
+          </tbody>
+        </table>
+        <h3>6.5 Overall assessment</h3>
+        <div class="callout green">
+          <strong>Evaluation summary</strong>
+          Gemini has a strong strategic foundation, broad capabilities and a significant ecosystem advantage. The most important product challenge is ensuring that capabilities are accurately represented, correctly configured and reliably executed. The opportunity is to close the gap between intelligence and dependable execution.
+        </div>
+      </section>
+
+      <section id="growth">
+        <p class="section-kicker">07 · Business model</p>
+        <h2 class="section-title">7. Growth & monetisation</h2>
+        <h3>7.1 Growth strategy</h3>
+        <p>Gemini can acquire users through Google's distribution surfaces and retain them by embedding useful AI experiences into existing workflows.</p>
+        <table>
+          <thead><tr><th>Growth lever</th><th>Mechanism</th><th>Potential contribution</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Android and mobile</strong></td><td>Default or prominent assistant entry points and app discovery.</td><td>Low-friction awareness and access.</td></tr>
+            <tr><td><strong>Search and Chrome</strong></td><td>AI-assisted information discovery in familiar search and browsing workflows.</td><td>Reach and high-intent usage.</td></tr>
+            <tr><td><strong>Workspace</strong></td><td>Gemini features in productivity applications.</td><td>Repeated work-related use and subscription value.</td></tr>
+            <tr><td><strong>Creative AI</strong></td><td>Image, video and other generation capabilities.</td><td>New use cases and feature-led acquisition.</td></tr>
+            <tr><td><strong>Personal Intelligence</strong></td><td>Optional context from connected Google apps.</td><td>More relevant assistance and potential retention.</td></tr>
+          </tbody>
+        </table>
+        <h3>7.2 Growth funnel</h3>
+        <div class="journey"><ol>
+          <li><strong>Awareness</strong><br>Search, Android, Workspace, referrals and media.</li>
+          <li><strong>Acquisition</strong><br>Install, open or sign in to Gemini.</li>
+          <li><strong>Activation</strong><br>Complete a first meaningful task.</li>
+          <li><strong>Engagement</strong><br>Return for recurring use cases.</li>
+        </ol>
+        <ol>
+          <li><strong>Retention</strong><br>Build trust and repeated utility.</li>
+          <li><strong>Monetisation</strong><br>Upgrade for higher limits and advanced features.</li>
+          <li><strong>Advocacy</strong><br>Recommend Gemini or share useful outputs.</li>
+        </ol></div>
+        <p><strong>Important funnel distinction:</strong> opening Gemini or sending a first prompt is not necessarily activation. For an AI assistant, activation should be tied to a meaningful successful outcome.</p>
+        <h3>7.3 Monetisation model</h3>
+        <p>Gemini follows a freemium consumer model with paid Google AI plans, alongside separate enterprise and developer monetisation paths. Paid plans can bundle higher usage limits, access to more advanced models or features, integrations into Google apps, creative tools and cloud storage. Exact inclusions vary by plan, country and date.</p>
+        <h4>India consumer plan snapshot</h4>
+        <p class="small">Official Google India subscription pages checked on 14 November 2026. Displayed prices and plan inclusions can change; confirm the live page before publishing.</p>
+        <table>
+          <thead><tr><th>Plan</th><th>Displayed price</th><th>Positioning</th></tr></thead>
+          <tbody>
+            <tr><td>Free</td><td>₹0 / month</td><td>Everyday AI access and a baseline set of features.</td></tr>
+            <tr><td>Google AI Plus</td><td>₹399 / month</td><td>More usage and additional AI capabilities; includes a storage benefit.</td></tr>
+            <tr><td>Google AI Pro</td><td>₹1,950 / month</td><td>Higher usage, advanced capabilities and expanded Google AI benefits.</td></tr>
+            <tr><td>Google AI Ultra</td><td>Starting at ₹6,500 / month</td><td>Highest access tiers and premium features; exact tier pricing and limits vary.</td></tr>
+          </tbody>
+        </table>
+        <p>These are a snapshot of the Google India plan page, not a claim that every feature listed is available to every account. Plan eligibility, limits, promotional pricing, family sharing and feature availability should be checked on the official page at the time of portfolio publication.</p>
+        <h3>7.4 What drives conversion?</h3>
+        <ul>
+          <li><strong>Advanced model access:</strong> users pay for higher access to more capable models.</li>
+          <li><strong>Usage limits:</strong> frequent users may upgrade when free limits constrain their work.</li>
+          <li><strong>Premium creation:</strong> advanced image and video capabilities may create willingness to pay.</li>
+          <li><strong>Productivity integration:</strong> Gemini in Gmail, Docs and other services increases value beyond the standalone app.</li>
+          <li><strong>Bundled benefits:</strong> storage and other Google services broaden the subscription proposition.</li>
+        </ul>
+        <h3>7.5 Growth and monetisation challenges</h3>
+        <ol>
+          <li><strong>Usage versus adoption:</strong> a large user count does not automatically mean habitual or successful usage.</li>
+          <li><strong>Free-to-paid conversion:</strong> users need a clear incremental benefit to justify upgrading.</li>
+          <li><strong>Inference economics:</strong> more complex reasoning and multi-step tasks can increase compute cost.</li>
+          <li><strong>Retention:</strong> users can switch between AI assistants unless Gemini becomes consistently useful in recurring workflows.</li>
+          <li><strong>Trust:</strong> failed personal-data tasks can reduce willingness to connect more apps or pay for advanced assistance.</li>
+        </ol>
+        <div class="callout blue">
+          <strong>Growth insight</strong>
+          Google's opportunity is to make Gemini useful inside routines users already have, rather than relying only on users remembering to open a separate chatbot.
+        </div>
+      </section>
+
+      <section id="metrics">
+        <p class="section-kicker">08 · Measurement</p>
+        <h2 class="section-title">8. Metrics & experimentation</h2>
+        <h3>8.1 Proposed North Star Metric</h3>
+        <div class="callout blue">
+          <strong>Weekly Successful User Goals (WSUG)</strong>
+          The number of unique users who complete at least one meaningful task successfully with Gemini during a seven-day period.
+          <p><code>WSUG = unique users with ≥ 1 successful goal in the last 7 days</code></p>
+          This is a proposed metric for the teardown, not a disclosed Google metric.
+        </div>
+        <p>Why this metric? Prompt volume and time spent can rise even when users are stuck or repeatedly correcting the assistant. A successful goal is closer to the value the product is meant to deliver.</p>
+        <h3>8.2 Supporting metrics</h3>
+        <table>
+          <thead><tr><th>Category</th><th>Metric</th><th>What it measures</th></tr></thead>
+          <tbody>
+            <tr><td>Acquisition</td><td>New activated users</td><td>Users who arrive and complete a first meaningful task.</td></tr>
+            <tr><td>Activation</td><td>First successful task rate</td><td>Share of new users who achieve an initial outcome.</td></tr>
+            <tr><td>Activation</td><td>Time to first success</td><td>Time between first use and first successful outcome.</td></tr>
+            <tr><td>Integration</td><td>Connected-app activation rate</td><td>Eligible users who connect an app and successfully use it.</td></tr>
+            <tr><td>Engagement</td><td>Successful goals per user</td><td>Frequency of meaningful task completion.</td></tr>
+            <tr><td>Engagement</td><td>Feature adoption</td><td>Usage of research, creation, voice and other capabilities.</td></tr>
+            <tr><td>Retention</td><td>D7 / D30 retention</td><td>Users returning after seven / thirty days.</td></tr>
+            <tr><td>Reliability</td><td>Task completion rate</td><td>Share of eligible task attempts completed successfully.</td></tr>
+            <tr><td>Trust</td><td>Capability accuracy</td><td>Whether Gemini correctly represents current capabilities.</td></tr>
+            <tr><td>Trust</td><td>Unsupported-claim rate</td><td>Frequency of claims about tools or access that are unavailable.</td></tr>
+            <tr><td>Recovery</td><td>Recovery success rate</td><td>Share of failed tasks that are successfully recovered.</td></tr>
+            <tr><td>Monetisation</td><td>Free-to-paid conversion</td><td>Share of eligible free users upgrading to a paid plan.</td></tr>
+            <tr><td>Monetisation</td><td>Paid retention</td><td>Subscribers continuing their paid plan.</td></tr>
+          </tbody>
+        </table>
+        <h3>8.3 Experiment 1 — Capability awareness and transparency</h3>
+        <span class="tag high">High priority</span>
+        <p><strong>Hypothesis:</strong> If Gemini checks and explains capability availability before attempting a task, users will experience fewer failed tasks and greater confidence.</p>
+        <ul>
+          <li><strong>Control:</strong> current response and task flow.</li>
+          <li><strong>Treatment:</strong> contextual capability status, including required integration, eligibility and mode.</li>
+          <li><strong>Primary metric:</strong> capability accuracy.</li>
+          <li><strong>Secondary metrics:</strong> task failure rate, abandonment and user corrections.</li>
+          <li><strong>Guardrails:</strong> response latency, unnecessary warnings and false-negative capability blocks.</li>
+        </ul>
+        <h3>8.4 Experiment 2 — Contextual integration onboarding</h3>
+        <span class="tag high">High priority</span>
+        <p><strong>Hypothesis:</strong> Users are more likely to connect relevant applications when setup is introduced at the moment they need the integration.</p>
+        <ul>
+          <li><strong>Control:</strong> existing settings-based discovery.</li>
+          <li><strong>Treatment:</strong> a contextual prompt that explains the required connection and links to the correct setup path.</li>
+          <li><strong>Primary metric:</strong> integration activation rate.</li>
+          <li><strong>Secondary metrics:</strong> time to first integrated task and setup abandonment.</li>
+          <li><strong>Guardrails:</strong> consent comprehension, permission revocation and privacy complaints.</li>
+        </ul>
+        <h3>8.5 Experiment 3 — Intelligent failure recovery</h3>
+        <span class="tag high">High priority</span>
+        <p><strong>Hypothesis:</strong> Users are more likely to complete a task if Gemini diagnoses the reason for failure and offers a relevant next step.</p>
+        <ul>
+          <li><strong>Control:</strong> current failure response.</li>
+          <li><strong>Treatment:</strong> structured failure category and actionable recovery path.</li>
+          <li><strong>Primary metric:</strong> recovery success rate.</li>
+          <li><strong>Secondary metrics:</strong> repeated attempts, abandonment and satisfaction.</li>
+          <li><strong>Guardrails:</strong> incorrect diagnosis rate and unnecessary permission requests.</li>
+        </ul>
+        <h3>8.6 Experiment 4 — Cross-mode continuity</h3>
+        <span class="tag medium">Medium priority</span>
+        <p><strong>Hypothesis:</strong> Preserving context when users move between text and voice will improve task completion.</p>
+        <ul>
+          <li><strong>Control:</strong> existing mode transition.</li>
+          <li><strong>Treatment:</strong> context-preserving transition with a clear explanation of any mode-specific limitation.</li>
+          <li><strong>Primary metric:</strong> cross-mode task completion rate.</li>
+          <li><strong>Secondary metrics:</strong> user interventions, time to completion and abandonment.</li>
+        </ul>
+        <h3>8.7 Experiment 5 — Personalised assistance</h3>
+        <span class="tag medium">Medium priority</span>
+        <p><strong>Hypothesis:</strong> Relevant assistance based on explicitly authorised personal context will improve recurring task engagement.</p>
+        <ul>
+          <li><strong>Control:</strong> standard assistant experience.</li>
+          <li><strong>Treatment:</strong> optional contextual personalisation using connected apps.</li>
+          <li><strong>Primary metric:</strong> task-based retention.</li>
+          <li><strong>Guardrails:</strong> privacy complaints, incorrect personal assumptions, data-access revocation and user trust.</li>
+        </ul>
+        <h3>8.8 Experiment design principles</h3>
+        <ul>
+          <li>Randomise at the user level where appropriate and avoid exposing the same user to conflicting variants.</li>
+          <li>Segment by task category, platform, account type, region and interaction mode.</li>
+          <li>Define task success before launch; do not infer success merely from a positive-sounding response.</li>
+          <li>Use human review and sampled task audits for ambiguous outcomes.</li>
+          <li>Measure guardrails alongside conversion and completion.</li>
+          <li>Do not optimise for more permissions or more data connections as an end in themselves.</li>
+        </ul>
+        <div class="callout green">
+          <strong>Measurement philosophy</strong>
+          The goal is not to maximise the number of tasks Gemini attempts. It is to maximise the number of tasks it completes correctly, transparently and with user consent.
+        </div>
+      </section>
+
+      <section id="recommendations">
+        <p class="section-kicker">09 · Product direction</p>
+        <h2 class="section-title">9. Strategic recommendations</h2>
+        <p class="lead">The recommendations focus on making Gemini more dependable before expanding the number of tasks it attempts to perform.</p>
+        <h3>9.1 Recommendation 1 — Build a Capability Awareness Layer</h3>
+        <span class="tag high">P0 · Highest priority</span>
+        <p><strong>Problem:</strong> Gemini may not clearly establish whether the required app, permission, account eligibility and interaction mode are available before responding to a request.</p>
+        <p><strong>Proposal:</strong> Add a capability-checking layer that evaluates a task against the user's current context before the assistant makes a promise or begins execution.</p>
+        <p>The layer should check:</p>
+        <ol>
+          <li>What outcome the user wants.</li>
+          <li>Which tools or integrations are required.</li>
+          <li>Whether the tools are supported for this user and account.</li>
+          <li>Whether the required integration is connected and authorised.</li>
+          <li>Whether the current surface or mode supports the task.</li>
+          <li>Whether additional user approval is required.</li>
+        </ol>
+        <p><strong>Proposed interface:</strong> show a concise status such as “Available”, “Connect Google Photos”, “Not supported in this mode” or “Requires your approval”, with a direct next step. Avoid exposing unnecessary technical detail.</p>
+        <p><strong>Expected impact:</strong> fewer failed attempts, better capability transparency and higher confidence.</p>
+        <p><strong>Success metrics:</strong> capability accuracy, task completion and unsupported-claim rate.</p>
+
+        <h3>9.2 Recommendation 2 — Contextual Integration Onboarding</h3>
+        <span class="tag high">P1 · High priority</span>
+        <p><strong>Problem:</strong> Users may need an integration but do not know which service to connect or where to configure it.</p>
+        <p><strong>Proposal:</strong> Introduce just-in-time integration onboarding. When a request requires a missing integration, Gemini should explain the dependency, describe what data will be accessed, show the correct setup pathway and let the user approve or decline.</p>
+        <p><strong>Design principles:</strong></p>
+        <ul>
+          <li>Request access only when relevant to the user's task.</li>
+          <li>Explain the specific data and actions involved.</li>
+          <li>Provide a direct route to the correct settings.</li>
+          <li>Make disconnection and revocation discoverable.</li>
+          <li>Do not block unrelated tasks when the user declines.</li>
+        </ul>
+        <p><strong>Expected impact:</strong> higher integration activation, lower setup friction and faster time to first successful integrated task.</p>
+        <p><strong>Success metrics:</strong> integration activation rate, setup completion and first integrated-task success.</p>
+
+        <h3>9.3 Recommendation 3 — Intelligent Failure Recovery</h3>
+        <span class="tag high">P1 · High priority</span>
+        <p><strong>Problem:</strong> Generic failure messages make users diagnose the product themselves.</p>
+        <p><strong>Proposal:</strong> Use structured failure categories and recovery paths.</p>
+        <table>
+          <thead><tr><th>Failure state</th><th>Better product response</th></tr></thead>
+          <tbody>
+            <tr><td>App not connected</td><td>Identify the app and offer the correct connection flow.</td></tr>
+            <tr><td>Permission or authorisation missing</td><td>Explain the exact authorisation required and who controls it.</td></tr>
+            <tr><td>Unsupported mode</td><td>Explain the limitation and offer a supported mode where possible.</td></tr>
+            <tr><td>Account not eligible</td><td>Explain eligibility or rollout limits without suggesting irrelevant settings.</td></tr>
+            <tr><td>Search returned no match</td><td>Say the search completed but found no match; offer useful refinements.</td></tr>
+            <tr><td>Tool execution failed</td><td>State that execution failed, avoid claiming success and offer a safe retry.</td></tr>
+            <tr><td>Data genuinely unavailable</td><td>Explain the boundary and suggest an alternative that does not imply access.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Additional concept — Execution receipt:</strong> after an action, provide a concise summary of what was searched, what was changed, what was not changed and whether the task succeeded. This should be factual and generated from tool execution state, not inferred from the conversation.</p>
+        <p><strong>Expected impact:</strong> increased recovery, fewer repeated prompts and more reliable user expectations.</p>
+        <p><strong>Success metrics:</strong> recovery success rate, task completion and incorrect-diagnosis rate.</p>
+
+        <h3>9.4 Recommendation 4 — Unified Cross-Mode Experience</h3>
+        <span class="tag medium">P2 · Medium-high priority</span>
+        <p><strong>Problem:</strong> Text, voice and other Gemini experiences may not support identical capabilities. Users can lose context or encounter an unexplained limitation when switching modes.</p>
+        <p><strong>Proposal:</strong> Enable context-preserving transitions between supported modes. If a task cannot be completed in the current mode, Gemini should explain why, offer an appropriate transition and preserve the original intent where technically possible.</p>
+        <p><strong>Expected impact:</strong> fewer abandoned tasks, less context loss and a more consistent assistant experience.</p>
+        <p><strong>Success metrics:</strong> cross-mode completion rate, transition success and abandonment after a mode limitation.</p>
+
+        <h3>9.5 Prioritisation</h3>
+        <p class="small">Priority is a proposed product judgement based on user impact, strategic value and implementation complexity. It is not Google's internal prioritisation.</p>
+        <table>
+          <thead><tr><th>Recommendation</th><th>User impact</th><th>Relative effort</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr><td>Capability Awareness Layer</td><td>Very high</td><td>Medium</td><td><strong>P0</strong></td></tr>
+            <tr><td>Contextual Integration Onboarding</td><td>High</td><td>Medium</td><td><strong>P1</strong></td></tr>
+            <tr><td>Intelligent Failure Recovery</td><td>High</td><td>Medium–high</td><td><strong>P1</strong></td></tr>
+            <tr><td>Unified Cross-Mode Experience</td><td>High</td><td>High</td><td><strong>P2</strong></td></tr>
+          </tbody>
+        </table>
+        <h3>9.6 Proposed roadmap</h3>
+        <table>
+          <thead><tr><th>Horizon</th><th>Focus</th><th>Illustrative deliverables</th></tr></thead>
+          <tbody>
+            <tr><td><strong>0–3 months</strong></td><td>Trust and transparency</td><td>Capability checks, accurate unsupported-feature messages, corrected setup guidance and execution status.</td></tr>
+            <tr><td><strong>3–6 months</strong></td><td>Integration and recovery</td><td>Contextual connection flows, structured failure handling and integration diagnostics.</td></tr>
+            <tr><td><strong>6–12 months</strong></td><td>Seamless agentic experiences</td><td>Cross-mode continuity, multi-step execution visibility and richer task receipts.</td></tr>
+          </tbody>
+        </table>
+        <h3>9.7 Long-term vision</h3>
+        <div class="callout violet">
+          <strong>From chatbot to personal AI operating layer</strong>
+          The long-term opportunity is for users to describe the outcome they want rather than decide which application to open. Gemini can identify the relevant services, retrieve authorised context, coordinate supported steps and report what happened. The differentiator is not merely connecting more applications; it is making those connections reliable, understandable and user-controlled.
+        </div>
+      </section>
+
+      <section id="conclusion">
+        <p class="section-kicker">Synthesis</p>
+        <h2 class="section-title">Conclusion</h2>
+        <h3>Three biggest takeaways</h3>
+        <ol>
+          <li><strong>Intelligence does not automatically translate into utility.</strong> A capable model can still create a poor product experience when the required tools are unavailable or the task cannot be completed.</li>
+          <li><strong>Ecosystem integration is valuable only when it is seamless.</strong> Google's services create a strategic advantage, but confusing setup and unreliable execution can undermine it.</li>
+          <li><strong>Trust should be treated as a product metric.</strong> An assistant that works with personal information and performs actions must accurately communicate access, uncertainty and execution status.</li>
+        </ol>
+        <div class="callout blue">
+          <strong>Final product recommendation</strong>
+          Gemini should move from conversational intelligence to dependable execution. Google should prioritise accurate capability awareness, contextual integration, reliable failure recovery and transparent cross-mode continuity. The goal is an assistant users can confidently delegate tasks to, not just one they can ask questions.
+        </div>
+      </section>
+
+      <section id="evidence">
+        <p class="section-kicker">Research appendix</p>
+        <h2 class="section-title">Evidence, assumptions & references</h2>
+        <h3>Evidence classification</h3>
+        <table>
+          <thead><tr><th>Evidence type</th><th>Used for</th><th>Limit</th></tr></thead>
+          <tbody>
+            <tr><td>First-hand user screenshots</td><td>Photo-access interaction, conflicting assistant statements and Android App Info screen.</td><td>One user's observed session; does not establish universal behaviour or account configuration.</td></tr>
+            <tr><td>Official Google documentation</td><td>Connected Apps, Personal Intelligence, Google Photos prerequisites, mode availability and subscription plans.</td><td>Availability and labels can change; regional and account eligibility apply.</td></tr>
+            <tr><td>Company-reported statements</td><td>Gemini scale and strategic direction.</td><td>Company-reported figures; definitions may not be fully specified in the public statement.</td></tr>
+            <tr><td>Analytical inference</td><td>Competitive positioning, product critiques, scores and recommendations.</td><td>Clearly labelled as analysis, not internal Google data.</td></tr>
+          </tbody>
+        </table>
+        <h3>Important validation notes</h3>
+        <ol>
+          <li>Repeat the photo retrieval task in standard Gemini chat and in the voice / Live experience used in the screenshots.</li>
+          <li>Check the same Google account's Personal Intelligence and Connected Apps settings.</li>
+          <li>Confirm whether Google Photos appears as an available integration and whether it is connected.</li>
+          <li>Check any Google Photos setup prerequisites shown to that account.</li>
+          <li>Record device, app version, account type, region, mode and exact response.</li>
+          <li>Do not describe the result as a universal Gemini defect unless multiple accounts and configurations reproduce it.</li>
+        </ol>
+        <h3>Primary sources</h3>
+        <ol class="source-list">
+          <li><a href="https://gemini.google.com/" target="_blank" rel="noopener">Google Gemini — official product</a>. Product experience and entry point.</li>
+          <li><a href="https://support.google.com/gemini/answer/13695044?hl=en-IN" target="_blank" rel="noopener">Google Help — Use and manage Connected Apps in Gemini</a>. Connected app discovery, management and availability notes.</li>
+          <li><a href="https://support.google.com/gemini/answer/16598406?hl=en" target="_blank" rel="noopener">Google Help — Connect your Google apps to personalise your Gemini experience</a>. Personal Intelligence, Google Photos connection and setup requirements.</li>
+          <li><a href="https://support.google.com/gemini/answer/15274899?hl=en" target="_blank" rel="noopener">Google Help — Talk naturally with Gemini Live</a>. Connected Apps supported in Live and gradual rollout notes.</li>
+          <li><a href="https://blog.google/intl/en-in/products/personal-intelligence-launches-in-the-gemini-app-in-india/" target="_blank" rel="noopener">Google India — Personal Intelligence launches in the Gemini app in India</a>, 14 April 2026. India launch and connected-app positioning.</li>
+          <li><a href="https://gemini.google/in/overview/personal-intelligence/?hl=en-IN" target="_blank" rel="noopener">Google — Personal Intelligence overview</a>. User controls, connected services and personalisation positioning.</li>
+          <li><a href="https://gemini.google/in/subscriptions/?hl=en-IN" target="_blank" rel="noopener">Google Gemini — India subscription plans</a>. Current plan snapshot; verify at publication time.</li>
+          <li><a href="https://one.google.com/intl/en_in/about/google-ai-plans/" target="_blank" rel="noopener">Google One — Google AI plans in India</a>. Plan comparison and bundled benefits.</li>
+          <li><a href="https://blog.google/company-news/inside-google/message-ceo/alphabet-earnings-q3-2026/" target="_blank" rel="noopener">Google — Q3 2026 earnings call remarks</a>, 28 October 2026. Company-reported Gemini scale and strategic direction.</li>
+          <li><a href="https://www.sec.gov/Archives/edgar/data/1652044/000165204426000080/googexhibit991q32026.htm" target="_blank" rel="noopener">Alphabet — Q3 2026 results (SEC filing)</a>. Company-reported financial and product information.</li>
+          <li><a href="https://openai.com/" target="_blank" rel="noopener">OpenAI</a>. Competitor product reference; compare current features before publication.</li>
+          <li><a href="https://www.anthropic.com/news/product" target="_blank" rel="noopener">Anthropic — Product news</a>. Competitor product reference; compare current features before publication.</li>
+          <li><a href="https://www.perplexity.ai/" target="_blank" rel="noopener">Perplexity</a>. Competitor product reference; compare current features before publication.</li>
+        </ol>
+        <p class="small">Research cut-off: 14 November 2026. Sources were selected to ground current product claims. Dynamic plan pages and support documentation should be rechecked before the portfolio is published. The qualitative analysis and recommendations are the author's product judgements, not claims about Google's internal roadmap or metrics.</p>
+      </section>
+
+      <section id="agent-handoff">
+        <p class="section-kicker">Implementation brief</p>
+        <h2 class="section-title">Portfolio-agent handoff notes</h2>
+        <div class="callout blue">
+          <strong>Purpose of this HTML</strong>
+          This file is the content and structure source of truth for building the Gemini product-teardown page in the portfolio. Preserve the nine-part analytical framework and the distinction between observed evidence, official product facts, analytical judgements and proposed recommendations.
+        </div>
+        <h3>Required content hierarchy</h3>
+        <ol>
+          <li>Hero: Google Gemini, “Beyond intelligence: building an AI assistant users can trust”, product teardown, research date.</li>
+          <li>Executive summary with central thesis and the photo-access observation.</li>
+          <li>Nine numbered sections in the exact order used in this document.</li>
+          <li>Conclusion with three takeaways and final recommendation.</li>
+          <li>Evidence and references appendix.</li>
+        </ol>
+        <h3>Visual and interaction guidance</h3>
+        <ul>
+          <li>Use a restrained editorial / product-strategy visual style. Avoid a generic AI landing-page aesthetic.</li>
+          <li>Make the nine sections easy to scan with a persistent or compact table of contents.</li>
+          <li>Use cards for key findings, scorecards and recommendations, but keep detailed evidence in readable tables and prose.</li>
+          <li>Represent user journeys as step-by-step flows. Represent the proposed roadmap as a timeline.</li>
+          <li>Keep the photo-access critique prominent. If the original screenshots are available as assets, add them as an evidence gallery with captions and sequence numbers. Do not fabricate or redraw screenshots.</li>
+          <li>Label the capability-awareness UI as a proposed concept, not an existing Gemini interface.</li>
+          <li>Keep the qualitative scorecard visibly labelled as the portfolio author's assessment.</li>
+          <li>Display the India subscription pricing with a “checked 14 Nov 2026; verify before publication” note.</li>
+          <li>Make all source references clickable and preserve the research cut-off date.</li>
+          <li>Ensure responsive behaviour on mobile and desktop, accessible heading order, keyboard navigation and sufficient colour contrast.</li>
+        </ul>
+        <h3>Accuracy constraints</h3>
+        <ul>
+          <li>Do not say Gemini has unrestricted access to a phone's camera roll.</li>
+          <li>Do not conflate Android media permissions with Google Photos account integration through Personal Intelligence / Connected Apps.</li>
+          <li>Do not claim that the screenshots prove the feature is unavailable to all users.</li>
+          <li>Do not describe the one-billion-user company statement as monthly active users unless a source explicitly defines it that way.</li>
+          <li>Do not present the North Star metric, scores, experiments, roadmap or recommendations as Google's internal metrics or plans.</li>
+          <li>Do not invent technical implementation details of Google's private model architecture.</li>
+          <li>Do not silently change the nine-part framework or omit the evidence appendix.</li>
+        </ul>
+        <h3>Suggested portfolio page title and description</h3>
+        <p><strong>Title:</strong> Google Gemini — Beyond Intelligence: Building an AI Assistant Users Can Trust</p>
+        <p><strong>Description:</strong> A nine-part product teardown of Google's Gemini assistant, examining its ecosystem strategy, competitive position, user journeys, multimodal and connected-app experience, growth model and trust challenges. Includes a first-hand photo-access journey critique and a prioritised product strategy for more transparent, reliable task execution.</p>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p><strong>Google Gemini Product Teardown</strong> · Portfolio working document · Research cut-off: 14 November 2026.</p>
+    <p>Prepared for product analysis and portfolio development. Product details, availability and pricing are dynamic; verify linked official sources before public release.</p>
+  </footer>
+</div>
+</body>
+</html>

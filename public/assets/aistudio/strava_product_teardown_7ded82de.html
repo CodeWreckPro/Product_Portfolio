@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A nine-part product teardown of Strava for a Google APM portfolio.">
+  <title>Strava Product Teardown | Google APM Portfolio</title>
+  <style>
+    :root {
+      --ink: #202124;
+      --muted: #5f6368;
+      --line: #e5e7eb;
+      --surface: #f7f8fa;
+      --surface-2: #fff7f2;
+      --orange: #fc4c02;
+      --orange-dark: #d94100;
+      --green: #16834a;
+      --blue: #2463a6;
+      --amber: #a65d00;
+      --max: 1120px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #fff;
+      font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    a { color: var(--orange-dark); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    a:hover { color: var(--orange); }
+    .hero {
+      color: white;
+      background: linear-gradient(130deg, #171717 0%, #29221e 55%, #5a260f 100%);
+      padding: 76px 24px 64px;
+    }
+    .hero-inner, main, footer { width: min(var(--max), calc(100% - 48px)); margin: 0 auto; }
+    .eyebrow {
+      color: #ffb18c;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 850px;
+      margin: 14px 0 14px;
+      font-size: clamp(2.6rem, 7vw, 5.4rem);
+      line-height: .99;
+      letter-spacing: -.055em;
+    }
+    .subtitle {
+      max-width: 780px;
+      margin: 0;
+      color: #f1e8e3;
+      font-size: clamp(1.05rem, 2vw, 1.3rem);
+    }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 999px;
+      padding: 5px 12px;
+      color: #fff;
+      font-size: .82rem;
+    }
+    main { padding: 42px 0 80px; }
+    .thesis {
+      margin: -2px 0 34px;
+      padding: 24px 26px;
+      border-left: 4px solid var(--orange);
+      border-radius: 0 14px 14px 0;
+      background: var(--surface-2);
+    }
+    .thesis strong { display: block; margin-bottom: 6px; font-size: 1.06rem; }
+    .toc {
+      padding: 24px;
+      margin: 0 0 52px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+    }
+    .toc h2 { margin: 0 0 14px; font-size: 1.15rem; }
+    .toc ol {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 28px;
+      margin: 0;
+      padding-left: 22px;
+    }
+    .toc li { padding: 2px 0; }
+    section { margin: 0 0 58px; scroll-margin-top: 24px; }
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      padding-bottom: 12px;
+      margin-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    .section-number {
+      color: var(--orange);
+      font-size: .9rem;
+      font-weight: 850;
+      letter-spacing: .08em;
+    }
+    h2 { margin: 0; font-size: clamp(1.65rem, 3vw, 2.2rem); line-height: 1.2; letter-spacing: -.03em; }
+    h3 { margin: 28px 0 10px; font-size: 1.2rem; line-height: 1.3; }
+    h4 { margin: 18px 0 7px; font-size: 1rem; }
+    p { margin: 9px 0 14px; }
+    .lead { color: #3c4043; font-size: 1.08rem; }
+    .muted, .note { color: var(--muted); }
+    .note { font-size: .88rem; }
+    .grid-2, .grid-3 { display: grid; gap: 16px; margin: 18px 0; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      padding: 19px 20px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+    .card.soft { background: var(--surface); }
+    .card.orange { background: var(--surface-2); border-color: #ffd7c5; }
+    .card h3, .card h4 { margin-top: 0; }
+    .tag {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: #fff0e8;
+      color: var(--orange-dark);
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    table {
+      width: 100%;
+      margin: 16px 0 22px;
+      border-collapse: collapse;
+      font-size: .94rem;
+    }
+    th, td {
+      padding: 11px 13px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--surface); font-weight: 750; }
+    tr:last-child td { border-bottom: 0; }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      margin: 16px 0 22px;
+    }
+    .table-wrap table { margin: 0; }
+    .table-wrap th:first-child, .table-wrap td:first-child { min-width: 150px; }
+    ul, ol { padding-left: 22px; }
+    li { margin: 5px 0; }
+    .callout {
+      padding: 18px 20px;
+      margin: 18px 0;
+      border: 1px solid #dbe7f4;
+      border-radius: 13px;
+      background: #f5f9ff;
+    }
+    .callout strong { color: #194f83; }
+    .loop {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 22px;
+      margin: 18px 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+    .loop span {
+      padding: 10px 13px;
+      border: 1px solid #f3c4ae;
+      border-radius: 10px;
+      background: white;
+      font-weight: 700;
+      text-align: center;
+    }
+    .loop b { color: var(--orange); font-size: 1.15rem; }
+    .journey {
+      counter-reset: step;
+      display: grid;
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .journey-item {
+      position: relative;
+      padding: 17px 18px 17px 62px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+    }
+    .journey-item::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 18px;
+      top: 17px;
+      display: grid;
+      place-items: center;
+      width: 29px;
+      height: 29px;
+      border-radius: 50%;
+      color: white;
+      background: var(--orange);
+      font-weight: 800;
+    }
+    .journey-item h4 { margin: 0 0 5px; }
+    .journey-item p { margin: 4px 0; }
+    .score { color: var(--green); font-weight: 850; }
+    .north-star {
+      padding: 22px;
+      border: 1px solid #bfe3ce;
+      border-radius: 14px;
+      background: #f3fbf6;
+    }
+    .north-star strong { color: var(--green); }
+    .footer-box {
+      padding: 26px;
+      border-radius: 16px;
+      color: white;
+      background: #242424;
+    }
+    .footer-box h2 { color: white; }
+    .footer-box p { color: #ececec; }
+    footer {
+      padding: 24px 0 42px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-size: .85rem;
+    }
+    @media (max-width: 760px) {
+      .hero { padding: 58px 0 48px; }
+      .hero-inner, main, footer { width: min(100% - 32px, var(--max)); }
+      .toc ol, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .section-head { gap: 10px; }
+      table { font-size: .88rem; }
+      th, td { padding: 9px 10px; }
+    }
+    @media print {
+      .hero { padding: 35px 0; background: #222 !important; print-color-adjust: exact; }
+      .toc { break-after: page; }
+      section { break-inside: auto; }
+      .card, .callout, .journey-item, .north-star { break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Google APM Portfolio · Product Breakdown 02</div>
+      <h1>Strava:<br>Turning FOMO into Fitness</h1>
+      <p class="subtitle">A product teardown of how social comparison, asynchronous participation and achievement recognition can turn individual physical activity into a collective social experience.</p>
+      <div class="hero-meta">
+        <span class="pill">Product strategy</span>
+        <span class="pill">Fitness & social networking</span>
+        <span class="pill">Nine-part framework</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="thesis">
+      <strong>Central product thesis</strong>
+      Strava transforms individual physical activity into a collective social experience. It makes personal effort visible, measurable and socially rewarding, using community participation, social comparison and recognition to encourage people to stay active.
+    </div>
+
+    <nav class="toc" aria-label="Table of contents">
+      <h2>Case study contents</h2>
+      <ol>
+        <li><a href="#overview">Product Overview</a></li>
+        <li><a href="#research">User Research</a></li>
+        <li><a href="#problems">Problem Identification</a></li>
+        <li><a href="#journey">User Journey</a></li>
+        <li><a href="#solutions">Proposed Solutions</a></li>
+        <li><a href="#prioritisation">Prioritisation</a></li>
+        <li><a href="#metrics">Success Metrics</a></li>
+        <li><a href="#experimentation">Experimentation</a></li>
+        <li><a href="#risks">Risks & Reflection</a></li>
+      </ol>
+    </nav>
+
+    <section id="framework">
+      <h2>Framework overview</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Section</th><th>Focus</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Product Overview</td><td>Vision, positioning, users and business model</td></tr>
+            <tr><td>2</td><td>User Research</td><td>User segments, JTBD, needs and pain points</td></tr>
+            <tr><td>3</td><td>Problem Identification</td><td>Friction, unmet needs and opportunities</td></tr>
+            <tr><td>4</td><td>User Journey</td><td>Core experiences, touchpoints and friction</td></tr>
+            <tr><td>5</td><td>Proposed Solutions</td><td>Product opportunities and design decisions</td></tr>
+            <tr><td>6</td><td>Prioritisation</td><td>RICE, MVP and trade-offs</td></tr>
+            <tr><td>7</td><td>Success Metrics</td><td>North Star, KPIs and guardrails</td></tr>
+            <tr><td>8</td><td>Experimentation</td><td>Hypotheses, A/B tests and validation</td></tr>
+            <tr><td>9</td><td>Risks & Reflection</td><td>Privacy, safety, trade-offs and learnings</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Scope note: This teardown distinguishes between existing Strava capabilities, interpretations of its product strategy, and proposed product opportunities. Proposed solutions are not represented as existing features.</p>
+    </section>
+
+    <section id="overview">
+      <div class="section-head"><span class="section-number">01</span><h2>Product Overview</h2></div>
+      <h3>1.1 What is Strava?</h3>
+      <p class="lead">Strava is a fitness tracking and social networking platform that allows people to record, analyse and share physical activities.</p>
+      <p>Founded in 2009 by Michael Horvath and Mark Gainey, Strava was built around the idea of recreating the camaraderie and competition of team sports. Its positioning extends beyond running and cycling: it aims to serve people who engage in many forms of physical activity.</p>
+
+      <h3>1.2 Vision and value proposition</h3>
+      <p><strong>Product ambition:</strong> Make physical activity more accessible, motivating and connected by bringing athletes together.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Stakeholder</th><th>Value proposition</th></tr></thead>
+          <tbody>
+            <tr><td>Athletes</td><td>Track performance, build habits and receive recognition.</td></tr>
+            <tr><td>Friends and communities</td><td>Stay connected through shared activities.</td></tr>
+            <tr><td>Competitive athletes</td><td>Compare performance and monitor progress.</td></tr>
+            <tr><td>Brands</td><td>Engage with an active and relevant audience.</td></tr>
+            <tr><td>Urban planners</td><td>Use aggregated movement insights for infrastructure planning.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>1.3 Core product ecosystem</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Capability</th><th>Examples of features</th></tr></thead>
+          <tbody>
+            <tr><td>Activity tracking</td><td>GPS, distance, pace and elevation.</td></tr>
+            <tr><td>Social networking</td><td>Activity feed, Kudos, comments and followers.</td></tr>
+            <tr><td>Competition</td><td>Segments, leaderboards and challenges.</td></tr>
+            <tr><td>Community</td><td>Clubs, group activities and events.</td></tr>
+            <tr><td>Discovery</td><td>Routes, heatmaps and recommendations.</td></tr>
+            <tr><td>Performance</td><td>Training analytics, goals and AI-supported insights.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Strava supports a broad range of activity types and integrates with connected fitness devices. Its product direction also includes personalised training and AI-supported interpretation of activity data.</p>
+
+      <h3>1.4 Business model</h3>
+      <p>Strava follows a freemium model.</p>
+      <div class="grid-2">
+        <div class="card"><span class="tag">Free experience</span><h4>Core participation</h4><p>Activity recording, social feed, community participation and basic tracking.</p></div>
+        <div class="card"><span class="tag">Subscription</span><h4>Advanced capabilities</h4><p>Advanced analytics, route tools, training insights, goals and enhanced competition features.</p></div>
+        <div class="card"><span class="tag">Partnerships</span><h4>Brand engagement</h4><p>Sponsored challenges, sponsored segments and subscription partnerships.</p></div>
+        <div class="card"><span class="tag">Data services</span><h4>Strava Metro</h4><p>Aggregated movement data that can help public agencies understand active transportation patterns.</p></div>
+      </div>
+      <p>Strava's acquisition of Runna also expands its position in personalised running coaching and training plans.</p>
+
+      <h3>1.5 Competitive landscape</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Competitor</th><th>Primary differentiation</th></tr></thead>
+          <tbody>
+            <tr><td>Garmin Connect</td><td>Device-driven health and performance analytics.</td></tr>
+            <tr><td>Nike Run Club</td><td>Guided running experiences and training plans.</td></tr>
+            <tr><td>Komoot</td><td>Outdoor route discovery and navigation.</td></tr>
+            <tr><td>Apple Fitness+</td><td>Guided workouts and integration with Apple's fitness ecosystem.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout"><strong>Strava's differentiation:</strong> It combines activity tracking with a large, cross-device social network. Its community layer can make it valuable alongside the fitness application provided by a user's watch or phone manufacturer.</div>
+    </section>
+
+    <section id="research">
+      <div class="section-head"><span class="section-number">02</span><h2>User Research</h2></div>
+      <h3>2.1 User segmentation</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>User segment</th><th>Primary motivation</th><th>Key need</th></tr></thead>
+          <tbody>
+            <tr><td>Beginners</td><td>Building healthy habits</td><td>Encouragement and consistency</td></tr>
+            <tr><td>Recreational athletes</td><td>Enjoyment and social connection</td><td>Community and recognition</td></tr>
+            <tr><td>Competitive athletes</td><td>Improving performance</td><td>Analytics and competition</td></tr>
+            <tr><td>Outdoor explorers</td><td>Discovering new places</td><td>Routes and navigation</td></tr>
+            <tr><td>Fitness enthusiasts</td><td>Tracking overall progress</td><td>Multi-sport tracking</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>2.2 Jobs to Be Done (JTBD)</h3>
+      <div class="grid-3">
+        <div class="card soft"><h4>Functional jobs</h4><ul><li>Track physical activities.</li><li>Understand performance improvements.</li><li>Discover routes.</li><li>Maintain a consistent routine.</li></ul></div>
+        <div class="card soft"><h4>Emotional jobs</h4><ul><li>Feel accomplished.</li><li>Stay motivated when exercise feels repetitive.</li><li>Feel confident about progress.</li></ul></div>
+        <div class="card soft"><h4>Social jobs</h4><ul><li>Share achievements.</li><li>Receive recognition.</li><li>Participate in friendly competition.</li><li>Feel connected while exercising alone.</li></ul></div>
+      </div>
+
+      <h3>2.3 Key behavioural insights</h3>
+      <div class="card">
+        <h4>1. People are motivated by social comparison</h4>
+        <p>Seeing friends exercise creates social proof and can trigger FOMO. Users may feel motivated to participate rather than miss out.</p>
+        <h4>2. People want recognition for their achievements</h4>
+        <p>Completing a difficult run or cycling milestone can create a desire to share the accomplishment. Kudos and comments provide social reinforcement.</p>
+        <h4>3. People want community without constant coordination</h4>
+        <p>Friends cannot always exercise together. Strava allows them to participate independently while sharing progress asynchronously.</p>
+      </div>
+      <p class="note">Research signal: Strava's Year in Sport reporting has highlighted the breadth of activity types and the growth of activities such as walking. These trends support examining Strava as a broader activity community, not only a platform for serious runners and cyclists.</p>
+    </section>
+
+    <section id="problems">
+      <div class="section-head"><span class="section-number">03</span><h2>Problem Identification</h2></div>
+      <p>Based on the product's positioning and the behavioural analysis above, several underlying problems emerge.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Problem</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td>Inconsistent motivation</td><td>Individual fitness goals can become repetitive and difficult to sustain.</td></tr>
+            <tr><td>Lack of social accountability</td><td>People can struggle to maintain habits without encouragement.</td></tr>
+            <tr><td>Coordination friction</td><td>Friends cannot consistently align their schedules.</td></tr>
+            <tr><td>Limited recognition</td><td>Achievements can feel less rewarding without social acknowledgement.</td></tr>
+            <tr><td>Fragmented progress tracking</td><td>Activity data may be spread across devices and applications.</td></tr>
+            <tr><td>Competitive pressure</td><td>Constant comparison can discourage beginners or encourage unhealthy behaviour.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="thesis">
+        <strong>Core problem statement</strong>
+        How might we make physical activity a socially rewarding and sustainable habit without requiring people to exercise together or compete constantly?
+      </div>
+      <h3>Our key product insight</h3>
+      <div class="grid-3">
+        <div class="card orange"><span class="tag">Motivation</span><h4>FOMO and social comparison</h4><p>Seeing others participate creates an incentive to get moving.</p></div>
+        <div class="card"><span class="tag">Connection</span><h4>Asynchronous participation</h4><p>Friends can stay connected through activities without coordinating schedules.</p></div>
+        <div class="card"><span class="tag">Recognition</span><h4>Credible achievement sharing</h4><p>Recorded activity data gives context to personal achievements, making them more informative than unsupported social media claims.</p></div>
+      </div>
+      <p class="note">Credibility qualification: Strava provides structured activity evidence, not tamper-proof verification. GPS accuracy, connected-device data and manually entered activities can vary.</p>
+    </section>
+
+    <section id="journey">
+      <div class="section-head"><span class="section-number">04</span><h2>User Journey</h2></div>
+      <h3>4.1 Core user journey</h3>
+      <p class="lead">Scenario: A recreational runner wants to build a consistent running habit.</p>
+      <div class="journey">
+        <div class="journey-item"><h4>Discovery and onboarding</h4><p>Finds Strava through friends, running communities or app recommendations.</p><p class="note"><strong>Potential friction:</strong> Understanding the product's value without an existing social network.</p></div>
+        <div class="journey-item"><h4>Connect and configure</h4><p>Follows friends, joins clubs and connects a smartwatch or fitness device.</p><p class="note"><strong>Potential friction:</strong> Device compatibility and setup complexity.</p></div>
+        <div class="journey-item"><h4>Record activity</h4><p>Goes for a run and records GPS, distance, pace and other metrics.</p><p class="note"><strong>Potential friction:</strong> GPS accuracy, battery consumption and recording reliability.</p></div>
+        <div class="journey-item"><h4>Share achievement</h4><p>Reviews the activity, saves it and shares it with followers.</p><p class="note"><strong>Potential friction:</strong> Privacy concerns and uncertainty about what information is visible.</p></div>
+        <div class="journey-item"><h4>Social reinforcement</h4><p>Receives Kudos and comments from friends.</p><p class="note"><strong>Potential friction:</strong> Limited engagement can reduce motivation.</p></div>
+        <div class="journey-item"><h4>Return and improve</h4><p>Sees other activities, compares progress and participates in challenges.</p><p class="note"><strong>Potential friction:</strong> Competitive pressure or repetitive experiences.</p></div>
+      </div>
+
+      <h3>4.2 Behavioural feedback loop</h3>
+      <div class="loop" aria-label="Behavioural feedback loop">
+        <span>See others exercising</span><b>→</b>
+        <span>Feel motivated</span><b>→</b>
+        <span>Complete an activity</span><b>→</b>
+        <span>Share achievement</span><b>→</b>
+        <span>Receive recognition</span><b>↻</b>
+      </div>
+      <p>This is the central engagement loop that makes Strava more than an activity tracker. Social motivation can encourage an activity; the activity creates something to share; recognition can reinforce the desire to participate again.</p>
+    </section>
+
+    <section id="solutions">
+      <div class="section-head"><span class="section-number">05</span><h2>Proposed Solutions</h2></div>
+      <p>These are product opportunities intended to strengthen social motivation while making participation more inclusive and sustainable.</p>
+
+      <div class="card orange">
+        <span class="tag">Primary opportunity</span>
+        <h3>5.1 Async Crew Goals</h3>
+        <p><strong>Problem:</strong> Friends want to stay active together but cannot consistently coordinate schedules.</p>
+        <p><strong>Proposed solution:</strong> Introduce recurring, small-group fitness goals where members contribute individually towards a shared target.</p>
+        <h4>Example experience</h4>
+        <ul>
+          <li>Five friends create a weekly 40 km collective running goal.</li>
+          <li>Everyone runs whenever their schedule allows.</li>
+          <li>Each activity contributes to the group's progress.</li>
+          <li>Members receive updates as the group approaches milestones.</li>
+          <li>The group celebrates completing the target.</li>
+        </ul>
+        <p><strong>Design principle:</strong> Emphasise participation rather than ranking everyone by performance.</p>
+        <p class="note">Strava already offers group challenges. This proposal is an evolution of that capability, focused on small, recurring groups and shared progress.</p>
+      </div>
+
+      <div class="card">
+        <h3>5.2 Context-rich Achievement Sharing</h3>
+        <p><strong>Problem:</strong> Conventional social media posts often lack context around fitness achievements.</p>
+        <p><strong>Proposed solution:</strong> Create richer, customisable achievement cards that bring together:</p>
+        <ul>
+          <li>Distance, pace and duration.</li>
+          <li>Route visualisation.</li>
+          <li>Personal records and milestones.</li>
+          <li>Activity source, such as GPS or a connected device.</li>
+          <li>Privacy controls for sensitive information.</li>
+        </ul>
+        <p>The goal is to make achievements easier to understand and share while being transparent about the underlying data.</p>
+      </div>
+
+      <div class="card">
+        <h3>5.3 Healthy Motivation Controls</h3>
+        <p><strong>Problem:</strong> Social comparison can sometimes create pressure, especially for beginners.</p>
+        <p><strong>Proposed solution:</strong> Introduce more personalised motivation settings.</p>
+        <ul>
+          <li>Prioritise personal progress over competitive rankings.</li>
+          <li>Allow users to customise their social feed.</li>
+          <li>Celebrate consistency rather than only speed.</li>
+          <li>Encourage recovery and rest.</li>
+          <li>Provide private, noncompetitive challenges.</li>
+        </ul>
+        <p>The goal is to make motivation sustainable rather than compulsive.</p>
+      </div>
+    </section>
+
+    <section id="prioritisation">
+      <div class="section-head"><span class="section-number">06</span><h2>Prioritisation</h2></div>
+      <p>Use RICE to compare the proposed opportunities.</p>
+      <div class="callout"><strong>RICE = Reach × Impact × Confidence ÷ Effort.</strong><br><span class="note">Illustrative relative scores for this product analysis, not actual Strava data. Reach and effort use a 1–10 scale; impact uses a 0.5–3 scale.</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Proposed solution</th><th>Reach</th><th>Impact</th><th>Confidence</th><th>Effort</th><th>Score</th></tr></thead>
+          <tbody>
+            <tr><td>Async Crew Goals</td><td>8</td><td>2</td><td>75%</td><td>3</td><td class="score">4.00</td></tr>
+            <tr><td>Achievement Sharing</td><td>6</td><td>1</td><td>80%</td><td>2</td><td>2.40</td></tr>
+            <tr><td>Motivation Controls</td><td>7</td><td>1.5</td><td>70%</td><td>3</td><td>2.45</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>Priority: Async Crew Goals.</strong> It directly addresses coordination friction, builds on Strava's social network, encourages recurring participation and supports beginners as well as experienced athletes.</p>
+
+      <h3>MVP scope</h3>
+      <ul>
+        <li>Private groups of 3–8 members.</li>
+        <li>Weekly collective activity goals.</li>
+        <li>Flexible individual participation.</li>
+        <li>Shared progress tracker.</li>
+        <li>Milestone notifications.</li>
+        <li>Weekly group recap.</li>
+      </ul>
+      <p><strong>What to leave out initially:</strong> Complex leaderboards and detailed competitive rankings. Validate the value of shared participation before adding more competition.</p>
+    </section>
+
+    <section id="metrics">
+      <div class="section-head"><span class="section-number">07</span><h2>Success Metrics</h2></div>
+      <h3>7.1 North Star Metric</h3>
+      <div class="north-star">
+        <strong>Weekly Active Athletes completing at least one recorded activity.</strong>
+        <p>This measures whether Strava is helping people translate engagement into actual physical activity.</p>
+      </div>
+
+      <h3>7.2 Supporting metrics</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Category</th><th>Metric</th><th>What it measures</th></tr></thead>
+          <tbody>
+            <tr><td>Acquisition</td><td>New athlete sign-ups</td><td>User growth.</td></tr>
+            <tr><td>Activation</td><td>First activity recorded</td><td>Initial value delivery.</td></tr>
+            <tr><td>Engagement</td><td>Activities per active athlete</td><td>Participation frequency.</td></tr>
+            <tr><td>Social</td><td>Kudos and comments per activity</td><td>Community interaction.</td></tr>
+            <tr><td>Community</td><td>Group challenge participation</td><td>Collective engagement.</td></tr>
+            <tr><td>Retention</td><td>4-week active retention</td><td>Habit formation.</td></tr>
+            <tr><td>Monetisation</td><td>Free-to-paid conversion</td><td>Subscription growth.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>7.3 Guardrail metrics</h3>
+      <ul>
+        <li>Activity privacy changes and deletion rates.</li>
+        <li>Reports, blocks and unwanted interactions.</li>
+        <li>User-reported social pressure.</li>
+        <li>Signals of unhealthy competition or excessive training.</li>
+        <li>App reliability and GPS recording failures.</li>
+      </ul>
+    </section>
+
+    <section id="experimentation">
+      <div class="section-head"><span class="section-number">08</span><h2>Experimentation</h2></div>
+      <div class="card orange">
+        <span class="tag">Primary experiment</span>
+        <h3>Experiment 1: Async Crew Goals</h3>
+        <p><strong>Hypothesis:</strong> Users offered flexible group fitness goals will demonstrate higher activity consistency and retention than users relying exclusively on individual goals.</p>
+        <div class="table-wrap">
+          <table>
+            <tbody>
+              <tr><th>Control group</th><td>Existing individual goals.</td></tr>
+              <tr><th>Test group</th><td>Async Crew Goals.</td></tr>
+              <tr><th>Duration</th><td>4 weeks.</td></tr>
+              <tr><th>Primary metric</th><td>4-week active retention.</td></tr>
+              <tr><th>Secondary metric</th><td>Activities per member per week.</td></tr>
+              <tr><th>Guardrails</th><td>Negative feedback, muting and group abandonment.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Success criteria:</strong> A meaningful improvement in activity consistency and retention without an increase in negative social experiences.</p>
+      </div>
+
+      <div class="card">
+        <h3>Experiment 2: Achievement Sharing</h3>
+        <p><strong>Hypothesis:</strong> Richer activity-sharing experiences will increase meaningful social interactions.</p>
+        <ul>
+          <li>A/B test standard activity sharing against custom achievement cards.</li>
+          <li>Measure Kudos, comments and shares.</li>
+          <li>Track whether users return to record another activity.</li>
+          <li>Monitor privacy-related complaints.</li>
+        </ul>
+        <p>This helps establish whether better achievement presentation translates into sustained engagement rather than only more sharing.</p>
+      </div>
+    </section>
+
+    <section id="risks">
+      <div class="section-head"><span class="section-number">09</span><h2>Risks & Reflection</h2></div>
+      <h3>9.1 Product risks</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Risk</th><th>Potential impact</th><th>Mitigation</th></tr></thead>
+          <tbody>
+            <tr><td>FOMO becoming unhealthy</td><td>Stress, overtraining and compulsive behaviour.</td><td>Noncompetitive goals and recovery prompts.</td></tr>
+            <tr><td>Location privacy</td><td>Exposure of home, workplace or routines.</td><td>Clear visibility controls and map masking.</td></tr>
+            <tr><td>Social comparison</td><td>Beginners feeling inadequate.</td><td>Personal progress and inclusive challenges.</td></tr>
+            <tr><td>Data manipulation</td><td>Reduced trust in achievements.</td><td>Transparent activity-source information.</td></tr>
+            <tr><td>Network dependency</td><td>Poor experience for users without friends on the platform.</td><td>Solo goals and community discovery.</td></tr>
+            <tr><td>Subscription friction</td><td>Valuable capabilities feel inaccessible.</td><td>Preserve a meaningful free experience.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>9.2 Strategic reflection</h3>
+      <div class="grid-3">
+        <div class="card soft"><h4>1. Social context changes value</h4><p>Tracking a run is useful. Sharing that run with friends and receiving recognition can make the experience more engaging.</p></div>
+        <div class="card soft"><h4>2. Asynchronous experiences remove friction</h4><p>People do not need to participate at the same time to feel part of a community.</p></div>
+        <div class="card soft"><h4>3. Engagement needs boundaries</h4><p>FOMO and competition can motivate people, but the product should avoid making exercise feel like an obligation or a race against everyone else.</p></div>
+      </div>
+
+      <div class="footer-box">
+        <h2>Final product takeaway</h2>
+        <p>Strava's strongest product advantage is its ability to connect individual physical activity with social motivation.</p>
+        <p>It transforms fitness from an isolated personal task into an ongoing community experience through social visibility, asynchronous participation, competition and recognition.</p>
+        <p><strong>The bigger lesson:</strong> Great products do not always need to create entirely new behaviours. Sometimes, they make existing human motivations work together to reinforce a valuable habit.</p>
+      </div>
+    </section>
+
+    <section id="summary">
+      <div class="section-head"><span class="section-number">★</span><h2>Case Study Summary</h2></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Framework</th><th>Key takeaway</th></tr></thead>
+          <tbody>
+            <tr><td>1. Product Overview</td><td>Social fitness platform built around activity and community.</td></tr>
+            <tr><td>2. User Research</td><td>Users seek progress, motivation, recognition and belonging.</td></tr>
+            <tr><td>3. Problem Identification</td><td>Inconsistent motivation and coordination friction.</td></tr>
+            <tr><td>4. User Journey</td><td>Record → Share → Recognition → Repeat.</td></tr>
+            <tr><td>5. Proposed Solutions</td><td>Async Crew Goals, achievement sharing and healthy motivation.</td></tr>
+            <tr><td>6. Prioritisation</td><td>Async Crew Goals as the primary opportunity.</td></tr>
+            <tr><td>7. Success Metrics</td><td>Weekly Active Athletes.</td></tr>
+            <tr><td>8. Experimentation</td><td>Validate activity consistency and retention.</td></tr>
+            <tr><td>9. Risks & Reflection</td><td>Balance engagement, competition and well-being.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="lead"><strong>Overall thesis:</strong> Strava turns individual effort into collective momentum. Its social layer makes exercise visible, its asynchronous nature removes coordination barriers, and its recognition mechanisms make achievements rewarding.</p>
+      <p>The most interesting product opportunity is to make that collective momentum more accessible to people who want community and accountability but cannot always participate together.</p>
+    </section>
+
+    <section id="sources">
+      <div class="section-head"><span class="section-number">R</span><h2>Research References & Validation Notes</h2></div>
+      <p>The original teardown used Strava company materials, product pages, Year in Sport reporting, product announcements and privacy documentation as research inputs.</p>
+      <ul>
+        <li><a href="https://www.strava.com/about" target="_blank" rel="noopener noreferrer">Strava — About</a></li>
+        <li><a href="https://www.strava.com/subscribe" target="_blank" rel="noopener noreferrer">Strava — Subscription</a></li>
+        <li><a href="https://www.strava.com/year-in-sport" target="_blank" rel="noopener noreferrer">Strava — Year in Sport</a></li>
+        <li><a href="https://support.strava.com/" target="_blank" rel="noopener noreferrer">Strava Support — Product and privacy documentation</a></li>
+        <li><a href="https://metro.strava.com/" target="_blank" rel="noopener noreferrer">Strava Metro</a></li>
+      </ul>
+      <p class="note">Validation note: Company scale, feature availability, subscription packaging and acquisition details change over time and should be rechecked against current official sources before public portfolio publication. Behavioural explanations in this teardown are product-analysis hypotheses, not claims about Strava's internal design intent. RICE scores and experiment thresholds are illustrative assumptions.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>Strava Product Teardown · Case Study 02</strong></p>
+    <p>Prepared as a product strategy and analysis artifact for a Google APM portfolio. This document is an independent analysis and is not affiliated with Strava.</p>
+  </footer>
+</body>
+</html>
